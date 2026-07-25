@@ -15,6 +15,8 @@
     --blue:#2E8FFF;
     --violet:#7B5CFF;
     --green:#29FFB0;
+    --red:#FF3B4E;
+    --red-dim:#2A0A10;
     --text:#E7ECF7;
     --muted:#8A93AC;
     --line:rgba(231,236,247,0.08);
@@ -94,10 +96,14 @@
   .navlinks a{transition:color 0.2s;}
   .navlinks a:hover{color:var(--text);}
   .nav-cta{
-    font-size:13px; font-weight:600; padding:9px 18px; border-radius:6px;
-    background:var(--green); color:#04150F; text-decoration:none;
-    letter-spacing:0.02em;
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono', monospace; font-size:12px; font-weight:600;
+    padding:8px 16px; border-radius:999px;
+    background:rgba(255,59,78,0.1); color:var(--red);
+    border:1px solid rgba(255,59,78,0.35);
+    letter-spacing:0.06em; text-transform:uppercase;
   }
+  .nav-cta .dot{width:6px; height:6px; border-radius:50%; background:var(--red); box-shadow:0 0 8px var(--red); animation:pulse 1.8s ease-in-out infinite;}
   @media (max-width:760px){ .navlinks{display:none;} }
 
   .hero{padding:96px 0 70px; position:relative; overflow:hidden;}
@@ -136,6 +142,43 @@
   }
   .btn-secondary:hover{color:var(--text); border-color:var(--muted);}
   .req{margin-top:14px; font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--muted);}
+
+  .lights-block{
+    margin-top:40px; display:flex; align-items:center; gap:22px; flex-wrap:wrap;
+  }
+  .lights-rig{
+    display:flex; gap:10px; padding:12px 16px; border-radius:10px;
+    background:linear-gradient(180deg, var(--panel), var(--panel-2));
+    border:1px solid var(--line);
+  }
+  .lights-rig .light{
+    width:22px; height:22px; border-radius:50%;
+    background:var(--red-dim); border:2px solid rgba(255,59,78,0.3);
+    box-shadow:inset 0 0 6px rgba(0,0,0,0.7);
+    animation:ignite 3.6s ease-in-out infinite;
+    animation-delay:var(--d, 0s);
+  }
+  @keyframes ignite{
+    0%, 4%{ background:var(--red-dim); box-shadow:inset 0 0 6px rgba(0,0,0,0.7); border-color:rgba(255,59,78,0.3); }
+    9%, 80%{ background:var(--red); box-shadow:0 0 16px 3px rgba(255,59,78,0.6), inset 0 0 6px rgba(255,255,255,0.15); border-color:var(--red); }
+    88%, 100%{ background:var(--red-dim); box-shadow:inset 0 0 6px rgba(0,0,0,0.7); border-color:rgba(255,59,78,0.3); }
+  }
+  .lights-copy .status{
+    display:block; font-family:'JetBrains Mono', monospace; font-size:11px;
+    letter-spacing:0.14em; text-transform:uppercase; color:var(--muted);
+  }
+  .lights-copy .date{
+    display:block; font-family:'Orbitron', sans-serif; font-weight:700; font-size:19px;
+    color:var(--text); margin-top:4px; letter-spacing:0.01em;
+  }
+  .lights-copy .date em{color:var(--red); font-style:normal;}
+  .lights-big{
+    display:flex; flex-direction:column; align-items:center; gap:22px;
+  }
+  .lights-big .lights-rig{ padding:20px 26px; gap:16px; }
+  .lights-big .lights-rig .light{ width:30px; height:30px; }
+  .lights-big .lights-copy{ text-align:center; }
+  .lights-big .lights-copy .date{ font-size:26px; }
 
   .hud{
     margin-top:64px;
@@ -266,7 +309,7 @@
       <a href="#how">How it works</a>
       <a href="#support">Support</a>
     </div>
-    <a class="nav-cta" href="#download">Download</a>
+    <span class="nav-cta"><span class="dot"></span>Mid-August</span>
   </div>
 </nav>
 
@@ -276,14 +319,23 @@
     <div class="eyebrow">Live for ACC &amp; Le Mans Ultimate</div>
     <h1>Your AI race engineer, <span>always on the radio.</span></h1>
     <p class="sub">PitWatch reads your telemetry in real time, answers what you ask, and calls out what matters — overtakes, damage, gaps, the finish — before you have to think to ask.</p>
-    <div class="hero-actions">
-      <a class="btn-primary" href="#download">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="M6 11l6 6 6-6"/><path d="M4 21h16"/></svg>
-        Download for Windows
-      </a>
+    <div class="lights-block">
+      <div class="lights-rig" aria-hidden="true">
+        <div class="light" style="--d:0s"></div>
+        <div class="light" style="--d:0.4s"></div>
+        <div class="light" style="--d:0.8s"></div>
+        <div class="light" style="--d:1.2s"></div>
+        <div class="light" style="--d:1.6s"></div>
+      </div>
+      <div class="lights-copy">
+        <span class="status">Grid forming</span>
+        <span class="date">Lights out <em>mid-August</em></span>
+      </div>
+    </div>
+    <div class="hero-actions" style="margin-top:26px;">
       <a class="btn-secondary" href="#feed">Hear it in action ↓</a>
     </div>
-    <div class="req">v1.0 · Windows 10/11 · free while in early access</div>
+    <div class="req">Windows 10/11 · Assetto Corsa Competizione &amp; Le Mans Ultimate</div>
 
     <div class="hud" id="hud" aria-hidden="true">
       <div class="hud-item">
@@ -410,15 +462,23 @@
 
 <section class="cta" id="download">
   <div class="wrap">
-    <h2>Get PitWatch on your rig tonight.</h2>
-    <p>Free during early access. Install, point it at ACC or LMU, and key up to ask your first question.</p>
-    <div class="hero-actions">
-      <a class="btn-primary" href="#" download>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="M6 11l6 6 6-6"/><path d="M4 21h16"/></svg>
-        Download PitWatch v1.0
-      </a>
+    <h2>PitWatch is on the formation lap.</h2>
+    <p>We're finishing the wheel-button push-to-talk flow before we send this live. Free at launch — install, point it at ACC or LMU, and key up to ask your first question.</p>
+    <div class="lights-big" style="margin-top:36px;">
+      <div class="lights-rig" aria-hidden="true">
+        <div class="light" style="--d:0s"></div>
+        <div class="light" style="--d:0.4s"></div>
+        <div class="light" style="--d:0.8s"></div>
+        <div class="light" style="--d:1.2s"></div>
+        <div class="light" style="--d:1.6s"></div>
+      </div>
+      <div class="lights-copy">
+        <span class="status">Standing by</span>
+        <span class="date">Lights out <em>mid-August</em></span>
+      </div>
+      <a class="btn-secondary" href="mailto:balazs.kiss@pitwatchai.com?subject=Notify%20me%20when%20PitWatch%20launches">Get a nudge when we go live →</a>
     </div>
-    <div class="req">Windows 10/11 · ACC or LMU installed · any wheel button. </div>
+    <div class="req">Windows 10/11 · ACC or LMU installed · any wheel button</div>
   </div>
 </section>
 
@@ -436,8 +496,6 @@
             <div class="role">CEO, Founder</div>
             <div class="name">Balázs Kiss</div>
             <a href="mailto:balazs.kiss@pitwatchai.com">balazs.kiss@pitwatchai.com</a>
-          </div>
-          <div class="contact-card">
           </div>
         </div>
       </div>
