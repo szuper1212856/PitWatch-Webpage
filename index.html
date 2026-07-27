@@ -3,795 +3,721 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PitWatch — Your AI Race Engineer</title>
+<title>PitWatch — An engineer on your radio, every single lap.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --void:#050B14;
-  --panel:rgba(255,255,255,0.035);
-  --border:rgba(255,255,255,0.09);
-  --ice:#EAF2FF;
-  --dim:#8CA0C4;
-  --blue:#FF2438;
-  --blue-soft:#FF6B76;
-  --green:#FF5C3D;
-  --green-soft:#FF8F97;
-  --violet:#4A0810;
-}
-*{box-sizing:border-box; margin:0; padding:0;}
-html{scroll-behavior:smooth;}
-body{
-  background:var(--void);
-  color:var(--ice);
-  font-family:'Inter', sans-serif;
-  line-height:1.65;
-  overflow-x:hidden;
-  cursor:default;
-}
-a{color:inherit;}
-:focus-visible{outline:2px solid var(--green); outline-offset:3px;}
-.mono{font-family:'JetBrains Mono', monospace;}
+  :root{
+    --void:#05060a;
+    --panel-bg:#0a0c14;
+    --red:#e8283f;
+    --red-bright:#ff4757;
+    --red-deep:#5a0d16;
+    --red-dim:rgba(232,40,63,0.35);
+    --white:#f4f5f8;
+    --muted:#8891a3;
+    --muted-dim:#5b6274;
+    --line:rgba(255,255,255,0.08);
+    --line-soft:rgba(255,255,255,0.05);
+    --panel:rgba(255,255,255,0.025);
+    --green:#4ade80;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--void);
+    color:var(--white);
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+    position:relative;
+    line-height:1.5;
+  }
+  ::selection{ background:var(--red); color:#fff; }
+  a{ color:inherit; }
+  .mono{ font-family:'JetBrains Mono',monospace; }
 
-.cursor-glow{
-  position:fixed; top:0; left:0; width:420px; height:420px; border-radius:50%;
-  background:radial-gradient(circle, rgba(255,36,56,0.16), rgba(255,92,61,0.08) 45%, transparent 72%);
-  pointer-events:none; z-index:2; transform:translate(-50%,-50%); mix-blend-mode:screen;
-  will-change:transform; transition:opacity 0.3s;
-}
-@media (pointer:coarse){ .cursor-glow{display:none;} }
+  /* ---------- ambient background ---------- */
+  .bg-glow{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse 900px 600px at 8% 10%, rgba(37,60,140,0.28), transparent 60%),
+      radial-gradient(ellipse 1100px 900px at 92% 30%, rgba(140,15,30,0.30), transparent 55%),
+      var(--void);
+  }
+  .grid-overlay{
+    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.35;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size:64px 64px;
+    mask-image:radial-gradient(ellipse 900px 700px at 20% 15%, black, transparent 70%);
+  }
+  .watermark{
+    position:absolute; top:10%; left:0; width:100%; z-index:0; pointer-events:none;
+    font-family:'Orbitron',sans-serif; font-weight:900;
+    font-size:min(20vw, 300px); letter-spacing:4px;
+    color:transparent; -webkit-text-stroke:1px rgba(232,40,63,0.09);
+    white-space:nowrap; text-align:center; user-select:none;
+  }
+  .streak-wrap{
+    position:absolute; right:-5%; top:30%; width:70%; height:340px; z-index:0; pointer-events:none; opacity:0.8;
+  }
+  .streak{
+    position:absolute; height:2px; border-radius:2px; right:0;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,0.9) 55%, var(--red) 85%, transparent);
+    animation:drift 5.5s ease-in-out infinite;
+  }
+  @keyframes drift{
+    0%,100%{ transform:translateX(0) scaleX(1); opacity:0.5;}
+    50%{ transform:translateX(-30px) scaleX(1.04); opacity:1;}
+  }
+  section{ position:relative; z-index:2; }
 
-.aurora{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;}
-.aurora span{position:absolute; border-radius:50%; filter:blur(120px); opacity:0.5; will-change:transform;}
-.aurora .a1{width:640px; height:640px; top:-220px; left:-180px; background:radial-gradient(circle, var(--blue), transparent 70%); opacity:0.18; animation:floatA 22s ease-in-out infinite;}
-.aurora .a2{width:640px; height:640px; top:20px; right:-260px; background:radial-gradient(circle, var(--green), transparent 68%); opacity:0.6; animation:floatB 26s ease-in-out infinite;}
-.aurora .a3{width:480px; height:480px; bottom:-220px; left:38%; background:radial-gradient(circle, var(--violet), transparent 72%); opacity:0.28; animation:floatC 30s ease-in-out infinite;}
-@keyframes floatA{0%,100%{transform:translate(0,0);} 50%{transform:translate(70px,60px);}}
-@keyframes floatB{0%,100%{transform:translate(0,0);} 50%{transform:translate(-60px,70px);}}
-@keyframes floatC{0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(50px,-40px) scale(1.1);}}
+  /* ---------- ticker ---------- */
+  .ticker{
+    position:relative; z-index:3;
+    border-bottom:1px solid var(--line);
+    background:rgba(255,255,255,0.015);
+    overflow:hidden; white-space:nowrap;
+    padding:9px 0;
+  }
+  .ticker-track{
+    display:inline-flex; gap:48px;
+    animation:tickerScroll 28s linear infinite;
+    font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:0.5px; color:var(--muted);
+  }
+  .ticker-track span.tag{ color:var(--red); font-weight:600; }
+  @keyframes tickerScroll{ from{ transform:translateX(0);} to{ transform:translateX(-50%);} }
 
-body::before{
-  content:"";
-  position:fixed; inset:0; z-index:0; pointer-events:none;
-  background-image:
-    linear-gradient(rgba(255,90,100,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,90,100,0.05) 1px, transparent 1px);
-  background-size:48px 48px;
-  mask-image:radial-gradient(ellipse 85% 65% at 50% 0%, black 25%, transparent 88%);
-}
+  /* ---------- header ---------- */
+  header{
+    position:relative; z-index:4;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:26px 56px;
+  }
+  .logo{ display:flex; align-items:center; gap:10px; font-family:'Orbitron',sans-serif; font-weight:700; font-size:19px; letter-spacing:0.5px; text-decoration:none;}
+  .logo .markshape{
+    width:15px; height:15px; background:var(--red);
+    transform:rotate(45deg); border-radius:3px;
+    box-shadow:0 0 16px var(--red-dim);
+  }
+  .logo .accent{ color:var(--red); }
+  nav.main-nav{ display:flex; gap:34px; }
+  nav.main-nav a{
+    text-decoration:none; color:var(--muted); font-size:14px; font-weight:500;
+    transition:color .15s ease;
+  }
+  nav.main-nav a:hover{ color:var(--white); }
+  .header-right{ display:flex; align-items:center; gap:18px; }
+  .badge{
+    display:flex; align-items:center; gap:8px;
+    border:1px solid rgba(232,40,63,0.35); color:var(--red);
+    font-family:'Orbitron',sans-serif; font-size:10.5px; letter-spacing:2px; font-weight:600;
+    padding:9px 16px; border-radius:30px; background:rgba(232,40,63,0.06);
+  }
+  .badge .dot{ width:6px; height:6px; border-radius:50%; background:var(--red); box-shadow:0 0 8px var(--red); }
 
-#trackline{position:absolute; top:0; left:30px; z-index:1; pointer-events:none;}
-@media (max-width:960px){ #trackline{display:none;} }
+  @media (max-width:900px){ nav.main-nav{ display:none; } }
 
-.wrap{max-width:1160px; margin:0 auto; padding:0 28px 0 92px; position:relative; z-index:2;}
-@media (max-width:960px){ .wrap{padding:0 28px;} }
+  /* ---------- hero ---------- */
+  .hero{ padding:64px 56px 20px; }
+  .eyebrow{
+    display:inline-block; border:1px solid rgba(232,40,63,0.4); color:var(--red);
+    font-family:'Orbitron',sans-serif; font-size:11px; letter-spacing:2.5px; font-weight:600;
+    padding:8px 18px; border-radius:30px; margin-bottom:26px;
+  }
+  h1{
+    font-family:'Orbitron',sans-serif; font-weight:800;
+    font-size:clamp(32px, 5vw, 62px); line-height:1.08; letter-spacing:0.3px;
+    max-width:880px;
+  }
+  h1 .hl{ color:var(--red); text-shadow:0 0 30px rgba(232,40,63,0.35); }
+  .sub{ margin-top:24px; max-width:540px; color:var(--muted); font-size:16.5px; line-height:1.7; }
 
-.glass{background:var(--panel); border:1px solid var(--border); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);}
-.reveal{opacity:0; transform:translateY(24px); transition:opacity 0.7s ease, transform 0.7s ease;}
-.reveal.in{opacity:1; transform:translateY(0);}
+  .cta-row{ display:flex; align-items:center; gap:26px; margin-top:34px; flex-wrap:wrap; }
+  .btn-primary{
+    background:linear-gradient(135deg, var(--red), #b81c2e); color:#fff; border:none;
+    font-family:'Inter',sans-serif; font-weight:600; font-size:15px;
+    padding:15px 28px; border-radius:8px; cursor:pointer;
+    box-shadow:0 8px 30px rgba(232,40,63,0.35);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 12px 34px rgba(232,40,63,0.5); }
+  .btn-primary:focus-visible, a:focus-visible, button:focus-visible, summary:focus-visible{ outline:2px solid #fff; outline-offset:3px; }
+  .btn-secondary{
+    color:var(--white); text-decoration:none; font-size:15px; font-weight:500;
+    border-bottom:1px solid rgba(255,255,255,0.4); padding-bottom:3px;
+    display:inline-flex; align-items:center; gap:6px;
+  }
 
-.sidenav{position:fixed; right:32px; top:50%; transform:translateY(-50%); z-index:40; display:flex; flex-direction:column; gap:18px;}
-.sidenav a{
-  width:9px; height:9px; border-radius:50%; background:var(--border); position:relative;
-  transition:background 0.3s, transform 0.3s;
-}
-.sidenav a.active{background:var(--green); box-shadow:0 0 10px var(--green); transform:scale(1.3);}
-.sidenav a span{
-  position:absolute; right:22px; top:50%; transform:translateY(-50%);
-  font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--dim);
-  white-space:nowrap; opacity:0; transition:opacity 0.2s; pointer-events:none;
-}
-.sidenav a:hover span{opacity:1;}
-@media (max-width:960px){ .sidenav{display:none;} }
+  /* ambient telemetry strip under hero */
+  .telemetry{
+    display:flex; gap:44px; flex-wrap:wrap;
+    margin-top:52px; padding:22px 0 30px; border-top:1px solid var(--line);
+    max-width:1100px;
+  }
+  .metric{ display:flex; align-items:center; gap:13px; }
+  .metric .icon{
+    width:38px; height:38px; border-radius:10px; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(232,40,63,0.08); border:1px solid rgba(232,40,63,0.25); color:var(--red);
+  }
+  .metric .icon svg{ width:19px; height:19px; }
+  .metric .m-label{ font-size:10.5px; letter-spacing:1.5px; color:var(--muted); text-transform:uppercase; }
+  .metric .m-value{ font-family:'Orbitron',sans-serif; font-weight:700; font-size:22px; margin-top:2px; }
+  .metric .m-value span.unit{ font-size:12px; color:var(--muted); font-family:'Inter',sans-serif; font-weight:500; margin-left:3px; }
 
-nav{position:sticky; top:0; z-index:50; background:rgba(5,11,20,0.7); backdrop-filter:blur(18px); border-bottom:1px solid var(--border);}
-nav .wrap{display:flex; align-items:center; justify-content:space-between; height:72px; padding-left:28px;}
-.logo{display:flex; align-items:center; gap:10px; font-family:'Orbitron', sans-serif; font-weight:700; font-size:18px; letter-spacing:0.03em;}
-.logo .mark{width:20px; height:20px; border-radius:6px; background:linear-gradient(135deg, var(--blue), var(--green)); box-shadow:0 0 16px rgba(255,92,61,0.4); transform:rotate(45deg);}
-.nav-status{
-  display:inline-flex; align-items:center; gap:8px;
-  font-family:'JetBrains Mono', monospace; font-size:11.5px; font-weight:600;
-  padding:7px 14px; border-radius:999px; color:var(--blue);
-  background:rgba(255,36,56,0.08); border:1px solid rgba(255,36,56,0.32);
-  letter-spacing:0.06em; text-transform:uppercase;
-}
-.nav-status .dot{width:6px; height:6px; border-radius:50%; background:var(--blue); box-shadow:0 0 8px var(--blue); animation:pulse 1.8s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:1; transform:scale(1);} 50%{opacity:0.35; transform:scale(0.7);}}
+  /* ---------- section shell ---------- */
+  .section{ padding:110px 56px; max-width:1240px; margin:0 auto; }
+  .section-head{ max-width:640px; margin-bottom:56px; }
+  .section-tag{
+    font-family:'Orbitron',sans-serif; font-size:11px; letter-spacing:3px; color:var(--red);
+    font-weight:600; margin-bottom:16px;
+  }
+  .section-title{
+    font-family:'Orbitron',sans-serif; font-weight:700; font-size:clamp(24px,3vw,36px);
+    line-height:1.2;
+  }
+  .section-desc{ margin-top:16px; color:var(--muted); font-size:15.5px; line-height:1.7; }
 
-.hero{padding:120px 0 96px; position:relative; overflow:hidden;}
-#hero-streaks{position:absolute; inset:0; z-index:1; pointer-events:none;}
-.ghost{
-  position:absolute; top:40px; left:-20px; z-index:0;
-  font-family:'Orbitron', sans-serif; font-weight:900; font-size:clamp(90px,16vw,220px);
-  color:transparent; -webkit-text-stroke:1px rgba(255,90,100,0.14);
-  letter-spacing:0.02em; white-space:nowrap; pointer-events:none;
-  user-select:none;
-}
-.hero-inner{position:relative; z-index:2;}
-.eyebrow{
-  display:inline-flex; align-items:center; gap:9px;
-  font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:0.14em;
-  color:var(--blue); text-transform:uppercase;
-  border:1px solid rgba(255,36,56,0.32); border-radius:999px;
-  padding:7px 16px; margin-bottom:30px;
-}
-.hero h1{
-  font-family:'Orbitron', sans-serif; font-weight:800;
-  font-size:clamp(36px, 5.6vw, 62px); line-height:1.12; letter-spacing:-0.005em;
-  max-width:780px;
-}
-.hero h1 span{ color:var(--blue); }
-.hero p.sub{margin-top:26px; font-size:18px; color:var(--dim); max-width:560px;}
+  /* reveal on scroll */
+  .reveal{ opacity:0; transform:translateY(22px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+  @media (prefers-reduced-motion:reduce){ .reveal{ opacity:1; transform:none; transition:none; } .streak{ animation:none; } .ticker-track{ animation:none; } }
 
-.hero-actions{display:flex; flex-wrap:wrap; gap:16px; margin-top:38px; align-items:center;}
-.magnetic{display:inline-block;}
-.btn-primary{
-  display:inline-flex; align-items:center; gap:10px;
-  background:linear-gradient(100deg, var(--blue), #D40E22);
-  color:#fff; font-weight:700; font-size:15px;
-  padding:15px 28px; border-radius:10px; text-decoration:none;
-  box-shadow:0 0 0 rgba(255,36,56,0); transition:box-shadow 0.3s;
-}
-.magnetic:hover .btn-primary{box-shadow:0 14px 36px -10px rgba(255,36,56,0.55);}
-.btn-secondary{font-size:14px; color:var(--dim); text-decoration:none; border-bottom:1px solid var(--border); padding-bottom:2px;}
-.btn-secondary:hover{color:var(--ice); border-color:var(--dim);}
+  /* ---------- problem ---------- */
+  .problem-grid{ display:grid; grid-template-columns:1.1fr 0.9fr; gap:64px; align-items:center; }
+  .problem-quote{
+    font-family:'Orbitron',sans-serif; font-size:clamp(20px,2.4vw,28px); font-weight:600; line-height:1.4;
+    color:var(--white);
+  }
+  .problem-quote .dim{ color:var(--muted-dim); }
+  .problem-list{ margin-top:28px; display:flex; flex-direction:column; gap:16px; }
+  .problem-list li{ list-style:none; display:flex; gap:12px; color:var(--muted); font-size:14.5px; }
+  .problem-list li::before{ content:"—"; color:var(--red); flex:none; }
+  .hud-mock{
+    border:1px solid var(--line); border-radius:16px; background:var(--panel);
+    padding:26px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--muted-dim);
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .hud-mock .row{ display:flex; justify-content:space-between; }
+  .hud-mock .row b{ color:var(--white); font-weight:600; }
+  .hud-mock .flash{ color:var(--red); animation:blink 1.4s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0.25; } }
+  @media (max-width:900px){ .problem-grid{ grid-template-columns:1fr; } }
 
-.clock-panel{
-  margin-top:56px; border-radius:18px; padding:26px 30px;
-  display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;
-  box-shadow:0 40px 90px -55px rgba(255,36,56,0.4);
-}
-.clock-label{font-family:'JetBrains Mono', monospace; font-size:11.5px; letter-spacing:0.12em; color:var(--blue-soft); text-transform:uppercase;}
-.clock{display:flex; align-items:flex-start; gap:16px; margin-top:12px;}
-.clock .unit{text-align:center;}
-.clock .num{
-  font-family:'Orbitron', sans-serif; font-weight:700; font-size:32px; line-height:1;
-  color:var(--ice);
-}
-.clock .lbl{font-family:'JetBrains Mono', monospace; font-size:10px; color:var(--dim); letter-spacing:0.1em; margin-top:5px;}
-.clock .colon{font-family:'Orbitron', sans-serif; font-size:28px; color:var(--blue); opacity:0.55; margin-top:-2px;}
+  /* ---------- how it works ---------- */
+  .steps{ display:grid; grid-template-columns:repeat(3,1fr); gap:28px; counter-reset:step; }
+  .step{
+    border:1px solid var(--line); border-radius:16px; padding:30px 26px;
+    background:var(--panel); position:relative; overflow:hidden;
+  }
+  .step::before{
+    counter-increment:step; content:"0" counter(step);
+    position:absolute; top:14px; right:20px;
+    font-family:'Orbitron',sans-serif; font-size:44px; font-weight:800;
+    color:rgba(232,40,63,0.12);
+  }
+  .step h3{ font-family:'Orbitron',sans-serif; font-size:17px; margin-bottom:12px; max-width:80%; }
+  .step p{ color:var(--muted); font-size:14.5px; line-height:1.65; max-width:88%; }
+  .step .arrow{ margin-top:18px; color:var(--red); font-size:13px; font-weight:600; }
+  @media (max-width:900px){ .steps{ grid-template-columns:1fr; } }
 
-.tele-row{display:flex; align-items:center; gap:34px; margin-top:52px; flex-wrap:wrap;}
-.tele-row .item{display:flex; align-items:center; gap:14px; padding-left:34px; border-left:1px solid var(--border);}
-.tele-row .item:first-child{padding-left:0; border-left:none;}
-.tele-row .item .tele-icon{
-  width:40px; height:40px; border-radius:11px; flex-shrink:0;
-  display:flex; align-items:center; justify-content:center;
-  background:rgba(255,36,56,0.08); border:1px solid rgba(255,36,56,0.25);
-}
-.tele-row .item .tele-icon svg{width:19px; height:19px; color:var(--blue);}
-.tele-row .item .label{font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--dim);}
-.tele-row .item .value{font-family:'JetBrains Mono', monospace; font-size:21px; font-weight:600; margin-top:4px;}
-.tele-row .item .value .unit{font-size:13px; color:var(--dim); font-weight:500;}
-@media (max-width:700px){ .tele-row{gap:20px 26px;} .tele-row .item{padding-left:0; border-left:none;} }
+  /* ---------- features ---------- */
+  .feature-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  .feature-card{
+    border:1px solid var(--line); border-radius:16px; padding:28px 24px;
+    background:var(--panel); transition:border-color .2s ease, transform .2s ease;
+  }
+  .feature-card:hover{ border-color:rgba(232,40,63,0.4); transform:translateY(-3px); }
+  .feature-card .icon{
+    width:42px; height:42px; border-radius:11px; margin-bottom:18px;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(232,40,63,0.08); border:1px solid rgba(232,40,63,0.25); color:var(--red);
+  }
+  .feature-card .icon svg{ width:21px; height:21px; }
+  .feature-card h3{ font-family:'Orbitron',sans-serif; font-size:15.5px; margin-bottom:10px; }
+  .feature-card p{ color:var(--muted); font-size:14px; line-height:1.6; }
+  @media (max-width:900px){ .feature-grid{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:600px){ .feature-grid{ grid-template-columns:1fr; } }
 
-.section{padding:100px 0;}
-.section-head{max-width:600px; margin-bottom:48px;}
-.section-head .kicker{font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--blue-soft); letter-spacing:0.12em; text-transform:uppercase;}
-.section-head h2{font-family:'Orbitron', sans-serif; font-size:clamp(25px,3.2vw,34px); margin-top:14px; font-weight:700; line-height:1.25;}
-.section-head p{margin-top:16px; color:var(--dim); font-size:16px;}
+  /* ---------- radio demo ---------- */
+  .radio-panel{
+    border:1px solid var(--line); border-radius:18px; background:var(--panel-bg);
+    padding:8px; max-width:760px; margin:0 auto;
+  }
+  .radio-topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px; border-bottom:1px solid var(--line);
+  }
+  .radio-topbar .rt-left{ display:flex; align-items:center; gap:10px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); }
+  .rec-dot{ width:8px; height:8px; border-radius:50%; background:var(--red); box-shadow:0 0 8px var(--red); animation:blink 1.2s steps(1) infinite; }
+  .radio-log{ padding:22px 18px; display:flex; flex-direction:column; gap:18px; min-height:280px; }
+  .msg{ display:flex; gap:12px; opacity:0; transform:translateY(8px); transition:opacity .4s ease, transform .4s ease; }
+  .msg.show{ opacity:1; transform:translateY(0); }
+  .msg .avatar{
+    width:30px; height:30px; border-radius:8px; flex:none; margin-top:2px;
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    font-family:'Orbitron',sans-serif;
+  }
+  .msg.engineer .avatar{ background:rgba(232,40,63,0.15); color:var(--red); border:1px solid rgba(232,40,63,0.3); }
+  .msg.driver .avatar{ background:rgba(255,255,255,0.06); color:var(--muted); border:1px solid var(--line); }
+  .msg .body{ flex:1; }
+  .msg .meta{ display:flex; gap:10px; align-items:center; margin-bottom:4px; }
+  .msg .who{ font-size:12px; font-weight:600; font-family:'Orbitron',sans-serif; letter-spacing:0.5px; }
+  .msg.engineer .who{ color:var(--red); }
+  .msg .time{ font-size:11px; color:var(--muted-dim); font-family:'JetBrains Mono',monospace; }
+  .msg .text{ font-size:14.5px; color:var(--white); line-height:1.5; }
+  .waveform{ display:flex; align-items:flex-end; gap:2px; height:16px; margin-top:6px; }
+  .waveform i{ width:2.5px; background:var(--red); opacity:0.6; border-radius:2px; animation:wave 1s ease-in-out infinite; }
+  @keyframes wave{ 0%,100%{ height:4px; } 50%{ height:15px; } }
 
-.bento{display:grid; grid-template-columns:repeat(4, 1fr); grid-auto-rows:168px; gap:16px; grid-auto-flow:dense;}
-.bento .card{
-  border-radius:16px; padding:26px 24px; transition:transform 0.25s, border-color 0.25s, box-shadow 0.25s;
-  transform-style:preserve-3d; will-change:transform; display:flex; flex-direction:column;
-}
-.bento .card:hover{border-color:rgba(255,255,255,0.2); box-shadow:0 30px 60px -35px rgba(255,36,56,0.4);}
-.bento .large{grid-column:span 2; grid-row:span 2; justify-content:space-between;}
-.bento .wide{grid-column:span 2;}
-.bento .icon-ring{
-  width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center;
-  background:linear-gradient(135deg, rgba(255,36,56,0.16), rgba(255,92,61,0.16));
-  border:1px solid var(--border); margin-bottom:16px; flex-shrink:0;
-}
-.bento .icon-ring svg{width:21px; height:21px; color:var(--green-soft);}
-.bento h3{font-family:'Orbitron', sans-serif; font-size:15.5px; font-weight:700;}
-.bento p{margin-top:10px; font-size:13.5px; color:var(--dim); line-height:1.5;}
-.bento .large h3{font-size:19px;}
-.mini-tele{display:flex; gap:20px; margin-top:auto; padding-top:16px;}
-.mini-tele div{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--dim);}
-.mini-tele div b{display:block; color:var(--green-soft); font-size:16px; margin-top:2px;}
-@media (max-width:900px){ .bento{grid-template-columns:repeat(2, 1fr);} .bento .large{grid-column:span 2;} }
-@media (max-width:560px){ .bento{grid-template-columns:1fr;} .bento .large,.bento .wide{grid-column:span 1;} }
+  /* ---------- proof ---------- */
+  .proof{
+    border:1px solid var(--line); border-radius:18px; background:var(--panel);
+    padding:40px 44px; display:grid; grid-template-columns:1.1fr 1fr; gap:40px; align-items:center;
+  }
+  .proof-track{ font-family:'Orbitron',sans-serif; font-size:12px; letter-spacing:2px; color:var(--red); margin-bottom:14px; }
+  .proof h3{ font-family:'Orbitron',sans-serif; font-size:22px; margin-bottom:14px; line-height:1.3; }
+  .proof p{ color:var(--muted); font-size:14.5px; line-height:1.7; max-width:480px; }
+  .proof-log{ font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--muted-dim); display:flex; flex-direction:column; gap:9px; }
+  .proof-log .ok::before{ content:"✓ "; color:var(--green); }
+  @media (max-width:900px){ .proof{ grid-template-columns:1fr; } }
 
-.pipeline{position:relative; margin-top:8px;}
-.pipeline .line{position:absolute; left:23px; top:6px; bottom:6px; width:2px; background:linear-gradient(var(--blue), var(--green)); opacity:0.5;}
-.pl-step{position:relative; padding:0 0 44px 74px;}
-.pl-step:last-child{padding-bottom:0;}
-.pl-step .node{position:absolute; left:0; top:0; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono', monospace; font-weight:700; font-size:14px; color:var(--green-soft);}
-.pl-step h3{font-family:'Orbitron', sans-serif; font-size:17px; font-weight:700;}
-.pl-step p{margin-top:9px; color:var(--dim); font-size:14.5px; max-width:520px;}
-.pl-step .note{display:inline-flex; align-items:center; gap:7px; margin-top:14px; font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--dim); border:1px solid var(--border); border-radius:999px; padding:5px 13px;}
-.pl-step .note .dot{width:5px; height:5px; border-radius:50%; background:var(--green); animation:pulse 1.8s ease-in-out infinite;}
+  /* ---------- countdown / signup ---------- */
+  .console{
+    border:1px solid var(--line); border-radius:18px; background:var(--panel);
+    padding:36px 40px; display:flex; justify-content:space-between; gap:40px; flex-wrap:wrap; align-items:center;
+  }
+  .console-label{ font-family:'Orbitron',sans-serif; color:var(--red); font-size:12px; letter-spacing:3px; font-weight:600; margin-bottom:16px; }
+  .clock{ display:flex; gap:30px; }
+  .clock .seg{ text-align:left; }
+  .clock .num{ font-family:'Orbitron',sans-serif; font-weight:800; font-size:42px; line-height:1; }
+  .clock .colon{ font-family:'Orbitron',sans-serif; font-weight:700; font-size:42px; color:var(--red); }
+  .clock .label{ margin-top:8px; font-size:11px; letter-spacing:2px; color:var(--muted); }
 
-.badges{display:flex; gap:12px; flex-wrap:wrap; margin-top:44px;}
-.badge{font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--dim); border:1px solid var(--border); padding:8px 15px; border-radius:999px;}
+  .signup{ display:flex; flex-direction:column; gap:12px; min-width:280px; }
+  .signup-row{ display:flex; gap:10px; }
+  .signup input{
+    flex:1; background:rgba(255,255,255,0.04); border:1px solid var(--line); border-radius:8px;
+    padding:13px 16px; color:var(--white); font-family:'Inter',sans-serif; font-size:14px;
+  }
+  .signup input::placeholder{ color:var(--muted-dim); }
+  .signup input:focus-visible{ outline:2px solid var(--red); outline-offset:2px; }
+  .signup .btn-primary{ padding:13px 22px; white-space:nowrap; }
+  .status-line{ color:var(--muted-dim); font-size:12.5px; min-height:16px; }
+  .status-line.ok{ color:var(--green); }
+  .status-line.err{ color:var(--red-bright); }
 
-.radio-panel{border-radius:18px; overflow:hidden; box-shadow:0 40px 90px -55px rgba(255,92,61,0.35);}
-.radio-panel-head{display:flex; align-items:center; justify-content:space-between; padding:18px 24px; border-bottom:1px solid var(--border); font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--dim);}
-.radio-panel-head .live{color:var(--green-soft); display:flex; align-items:center; gap:7px;}
-.radio-panel-head .live .dot{width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 1.8s ease-in-out infinite;}
-.radio-feed{height:280px; overflow:hidden; padding:20px 24px; position:relative;}
-.radio-feed::after{content:""; position:absolute; left:0; right:0; bottom:0; height:64px; background:linear-gradient(180deg, transparent, rgba(8,19,39,0.9)); pointer-events:none;}
-.radio-line{display:flex; gap:16px; padding:11px 0; border-bottom:1px dashed var(--border); font-family:'JetBrains Mono', monospace; font-size:13.5px; opacity:0; transform:translateY(6px); animation:lineIn 0.5s ease forwards;}
-.radio-line:last-child{border-bottom:none;}
-@keyframes lineIn{to{opacity:1; transform:translateY(0);}}
-.radio-line .tag{flex-shrink:0; width:84px; color:var(--blue-soft); font-weight:700; letter-spacing:0.03em;}
-.radio-line .txt{color:var(--ice);}
-.radio-line .txt.muted{color:var(--dim);}
+  /* ---------- faq ---------- */
+  .faq-list{ display:flex; flex-direction:column; gap:12px; max-width:820px; }
+  details{
+    border:1px solid var(--line); border-radius:12px; background:var(--panel); padding:6px 22px;
+  }
+  details[open]{ border-color:rgba(232,40,63,0.3); }
+  summary{
+    cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center;
+    padding:16px 0; font-family:'Orbitron',sans-serif; font-size:14.5px; font-weight:600;
+  }
+  summary::-webkit-details-marker{ display:none; }
+  summary::after{ content:"+"; color:var(--red); font-size:20px; font-weight:400; transition:transform .2s ease; }
+  details[open] summary::after{ content:"–"; }
+  .faq-answer{ color:var(--muted); font-size:14.5px; line-height:1.7; padding-bottom:18px; max-width:640px; }
 
-.cta{padding:110px 0; text-align:center;}
-.cta h2{font-family:'Orbitron', sans-serif; font-size:clamp(27px,3.8vw,40px); font-weight:800; max-width:620px; margin:0 auto;}
-.cta p{margin:18px auto 0; color:var(--dim); max-width:480px; font-size:16px;}
-.cta .clock-panel{margin:40px auto 0; max-width:560px; justify-content:center; flex-direction:column; text-align:center;}
-.cta .clock{justify-content:center;}
-.cta .req{margin-top:26px; font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--dim);}
+  /* ---------- final cta ---------- */
+  .final-cta{ text-align:center; padding:100px 56px 60px; }
+  .final-cta h2{ font-family:'Orbitron',sans-serif; font-weight:800; font-size:clamp(26px,4vw,44px); max-width:700px; margin:0 auto 20px; }
+  .final-cta p{ color:var(--muted); max-width:480px; margin:0 auto 32px; font-size:15.5px; }
 
-footer{border-top:1px solid var(--border); padding:60px 0 44px;}
-.footer-grid{display:flex; justify-content:space-between; gap:40px; flex-wrap:wrap;}
-.footer-brand .logo{margin-bottom:14px;}
-.footer-brand p{color:var(--dim); font-size:13.5px; max-width:280px;}
-.support h4{font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--dim); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:18px;}
-.contact-card{font-size:14px;}
-.contact-card .role{color:var(--dim); font-size:12.5px;}
-.contact-card .name{font-weight:600; margin-top:3px; font-family:'Orbitron', sans-serif; font-size:15px;}
-.contact-card a{font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--green-soft); text-decoration:none; margin-top:4px; display:inline-block;}
-.contact-card a:hover{text-decoration:underline;}
-.foot-bottom{margin-top:52px; padding-top:26px; border-top:1px solid var(--border); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:12.5px; color:var(--dim); font-family:'JetBrains Mono', monospace;}
+  footer{
+    position:relative; z-index:2; border-top:1px solid var(--line);
+    padding:36px 56px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;
+    color:var(--muted-dim); font-size:12.5px;
+  }
+  footer .foot-links{ display:flex; gap:24px; }
+  footer a{ text-decoration:none; color:var(--muted-dim); }
+  footer a:hover{ color:var(--white); }
 
-@media (prefers-reduced-motion: reduce){
-  *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
-  html{scroll-behavior:auto;}
-  .reveal{opacity:1; transform:none;}
-  .cursor-glow{display:none;}
-}
+  @media (max-width:720px){
+    header{ padding:22px; }
+    .hero{ padding:44px 22px 10px; }
+    .section{ padding:70px 22px; }
+    .console{ padding:26px; }
+    .clock .num, .clock .colon{ font-size:28px; }
+    .proof{ padding:26px; }
+    footer{ padding:28px 22px; flex-direction:column; align-items:flex-start; }
+  }
 </style>
 </head>
 <body>
 
-<div class="cursor-glow" id="cursor-glow" aria-hidden="true"></div>
+<div class="bg-glow"></div>
+<div class="grid-overlay"></div>
 
-<div class="aurora" aria-hidden="true">
-  <span class="a1"></span>
-  <span class="a2"></span>
-  <span class="a3"></span>
+<div class="ticker">
+  <div class="ticker-track" id="tickerTrack"></div>
 </div>
 
-<svg id="trackline" width="26" aria-hidden="true">
-  <path id="trackpath" d="" fill="none" stroke="url(#trackgrad)" stroke-width="2" stroke-linecap="round"/>
-  <defs>
-    <linearGradient id="trackgrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#FF2438"/>
-      <stop offset="100%" stop-color="#FF5C3D"/>
-    </linearGradient>
-  </defs>
-</svg>
-
-<div class="sidenav" id="sidenav">
-  <a href="#hero" data-target="hero"><span>Home</span></a>
-  <a href="#feed" data-target="feed"><span>Radio feed</span></a>
-  <a href="#features" data-target="features"><span>Features</span></a>
-  <a href="#how" data-target="how"><span>How it works</span></a>
-  <a href="#launch" data-target="launch"><span>Launch</span></a>
-  <a href="#support" data-target="support"><span>Support</span></a>
-</div>
-
-<nav>
-  <div class="wrap">
-    <div class="logo"><span class="mark"></span>PitWatch</div>
-    <span class="nav-status"><span class="dot"></span>Mid-August</span>
-  </div>
-</nav>
-
-<header class="hero" id="hero">
-  <canvas id="hero-streaks" aria-hidden="true"></canvas>
-  <div class="ghost" id="ghost">PITWATCH · PITWATCH</div>
-  <div class="wrap hero-inner">
-    <div class="eyebrow">Built for ACC &amp; Le Mans Ultimate</div>
-    <h1>An engineer on your radio, <span>every single lap.</span></h1>
-    <p class="sub">PitWatch watches your telemetry so you don't have to. Ask it anything mid-session, and it speaks up on its own the moment something changes the race.</p>
-
-    <div class="hero-actions">
-      <span class="magnetic" id="magnet1"><a class="btn-primary" href="mailto:balazs.kiss@pitwatchai.com?subject=Notify%20me%20when%20PitWatch%20launches">Get a nudge when we go live</a></span>
-      <a class="btn-secondary" href="#feed">Hear it in action ↓</a>
-    </div>
-
-    <div class="clock-panel glass reveal">
-      <div>
-        <div class="clock-label">Lights out in</div>
-        <div class="clock">
-          <div class="unit"><div class="num" id="c-d">00</div><div class="lbl">DAYS</div></div>
-          <div class="colon">:</div>
-          <div class="unit"><div class="num" id="c-h">00</div><div class="lbl">HRS</div></div>
-          <div class="colon">:</div>
-          <div class="unit"><div class="num" id="c-m">00</div><div class="lbl">MIN</div></div>
-          <div class="colon">:</div>
-          <div class="unit"><div class="num" id="c-s">00</div><div class="lbl">SEC</div></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="tele-row" id="hud" aria-hidden="true">
-      <div class="item">
-        <div class="tele-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21a9 9 0 100-18 9 9 0 000 18z"/><path d="M12 12l4.2-4.2"/><path d="M8 12h.01M12 6.5h.01M16 12h.01M12 17.5h.01"/></svg></div>
-        <div>
-          <div class="label">Speed</div>
-          <div class="value" id="hud-speed">241 <span class="unit">km/h</span></div>
-        </div>
-      </div>
-      <div class="item">
-        <div class="tele-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20V10"/><path d="M7 15l5-5 5 5"/><path d="M5 20h14"/></svg></div>
-        <div>
-          <div class="label">Throttle</div>
-          <div class="value" id="hud-throttle-val">86%</div>
-        </div>
-      </div>
-      <div class="item">
-        <div class="tele-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><path d="M12 6.2v1.6M17.8 12h-1.6M12 17.8v-1.6M6.2 12h1.6"/></svg></div>
-        <div>
-          <div class="label">Brake</div>
-          <div class="value" id="hud-brake-val">0%</div>
-        </div>
-      </div>
-      <div class="item">
-        <div class="tele-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 5l6 7-6 7"/><path d="M13 5l6 7-6 7"/></svg></div>
-        <div>
-          <div class="label">Gap ahead</div>
-          <div class="value" id="hud-gap">+0.42s</div>
-        </div>
-      </div>
-    </div>
+<header>
+  <a class="logo" href="#top"><span class="markshape"></span>Pit<span class="accent">Watch</span></a>
+  <nav class="main-nav">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#demo">Demo</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <div class="header-right">
+    <div class="badge"><span class="dot"></span>MID-AUGUST</div>
   </div>
 </header>
 
-<section class="section" id="feed">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <div class="kicker">What it sounds like</div>
-      <h2>It talks like a race engineer, not a chatbot.</h2>
-      <p>No dashboards to glance at mid-corner. Bind a button on your wheel, hold it, and ask. PitWatch answers over your radio and calls things out on its own when they matter.</p>
-    </div>
-    <div class="radio-panel glass reveal">
-      <div class="radio-panel-head">
-        <span>PITWATCH // SESSION_FEED</span>
-        <span class="live"><span class="dot"></span>LIVE</span>
-      </div>
-      <div class="radio-feed" id="radio-feed"></div>
-    </div>
-  </div>
-</section>
+<main id="top">
 
-<section class="section" id="features">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <div class="kicker">What it does</div>
-      <h2>Built for the moments you don't have time to check a screen.</h2>
+  <section class="hero" style="position:relative;">
+    <div class="watermark">PITWATCH</div>
+    <div class="streak-wrap">
+      <div class="streak" style="top:40%; width:100%; animation-delay:0s;"></div>
+      <div class="streak" style="top:52%; width:85%; animation-delay:.6s;"></div>
+      <div class="streak" style="top:64%; width:65%; animation-delay:1.2s;"></div>
+      <div class="streak" style="top:74%; width:45%; animation-delay:.3s;"></div>
     </div>
-    <div class="bento reveal">
-      <div class="card large glass tilt">
-        <div>
-          <div class="icon-ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 6v6l4 2"/></svg></div>
-          <h3>Live telemetry Q&amp;A</h3>
-          <p>Ask about fuel, tyres, gaps, or lap delta and get an answer pulled straight from live shared memory, not a guess.</p>
-        </div>
-        <div class="mini-tele">
-          <div>FUEL<b>4.2L</b></div>
-          <div>TYRES<b>89°C</b></div>
-          <div>DELTA<b>-0.31</b></div>
-        </div>
+
+    <div class="eyebrow">BUILT FOR ACC &amp; LE MANS ULTIMATE</div>
+    <h1>An engineer on your radio,<br><span class="hl">every single lap.</span></h1>
+    <p class="sub">PitWatch watches your telemetry so you don't have to. Ask it anything mid-session, and it speaks up on its own the moment something changes the race.</p>
+
+    <div class="cta-row">
+      <button class="btn-primary" id="heroNotifyBtn">Get a nudge when we go live</button>
+      <a class="btn-secondary" href="#demo">Hear it in action ↓</a>
+    </div>
+
+    <div class="telemetry">
+      <div class="metric">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 12l4-4"/><path d="M12 3v2M21 12h-2M3 12h2"/></svg></div>
+        <div><div class="m-label">Speed</div><div class="m-value" id="speedVal">231<span class="unit">km/h</span></div></div>
       </div>
-      <div class="card wide glass tilt">
-        <div class="icon-ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19 5a10 10 0 010 14M15.5 8.5a5 5 0 010 7"/></svg></div>
-        <h3>Spoken callouts</h3>
-        <p>PitWatch talks over your race comms, so you never have to break focus to read anything.</p>
+      <div class="metric">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-10 4 6 3-4 5 8"/></svg></div>
+        <div><div class="m-label">Throttle</div><div class="m-value" id="throttleVal">94<span class="unit">%</span></div></div>
       </div>
-      <div class="card glass tilt">
-        <div class="icon-ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
+      <div class="metric">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></div>
+        <div><div class="m-label">Brake</div><div class="m-value" id="brakeVal">0<span class="unit">%</span></div></div>
+      </div>
+      <div class="metric">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h10M11 8l4 4-4 4"/><path d="M15 6l4 6-4 6"/></svg></div>
+        <div><div class="m-label">Gap Ahead</div><div class="m-value" id="gapVal">+1.10<span class="unit">s</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="section reveal">
+    <div class="problem-grid">
+      <div>
+        <div class="problem-quote">You're already at the limit. <span class="dim">You don't have a spare glance for a dashboard, and you definitely don't have a spare hand.</span></div>
+        <ul class="problem-list">
+          <li>Overlays make you look away from the track to read them.</li>
+          <li>Spotter apps tell you what's happening, not what it means.</li>
+          <li>By the time you've processed a number, the corner's gone.</li>
+        </ul>
+      </div>
+      <div class="hud-mock">
+        <div class="row"><span>SESSION</span><b>RACE · LAP 14/32</b></div>
+        <div class="row"><span>POSITION</span><b>P4</b></div>
+        <div class="row"><span>GAP AHEAD</span><b>+1.10s</b></div>
+        <div class="row"><span>TYRE TEMP FL</span><b>91°C</b></div>
+        <div class="row"><span>DAMAGE</span><span class="flash">CONTACT DETECTED — REAR</span></div>
+        <div class="row"><span>FUEL</span><b>8.2L / ~6 laps</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section reveal" id="how">
+    <div class="section-head">
+      <div class="section-tag">HOW IT WORKS</div>
+      <div class="section-title">Three systems, one radio channel.</div>
+      <p class="section-desc">Telemetry in, reasoning in the middle, a voice back out — the same loop a real race engineer runs, just running constantly and never getting tired.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <h3>Telemetry, straight from the sim</h3>
+        <p>PitWatch reads ACC and Le Mans Ultimate's shared memory directly — position, gaps, damage, fuel, tyre wear — with nothing installed on the sim side and no ports exposed.</p>
+        <div class="arrow">→ feeds the engineer</div>
+      </div>
+      <div class="step">
+        <h3>An engineer that actually reasons</h3>
+        <p>Every frame runs through the Gemini API. PitWatch isn't replaying canned lines — it's weighing what just happened against what mattered, lap by lap.</p>
+        <div class="arrow">→ decides what to say</div>
+      </div>
+      <div class="step">
+        <h3>Push-to-talk, like the real thing</h3>
+        <p>Hold a Stream Deck button, ask a question, get a spoken answer — no alt-tabbing, no typing, no breaking your line through Eau Rouge.</p>
+        <div class="arrow">→ speaks on the radio</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section reveal" id="features">
+    <div class="section-head">
+      <div class="section-tag">FEATURES</div>
+      <div class="section-title">Everything a good engineer would tell you.</div>
+      <p class="section-desc">PitWatch doesn't wait to be asked for the things that matter most — it calls them the moment they happen.</p>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19l6-14 4 9 3-5 3 10"/></svg></div>
         <h3>Overtake commentary</h3>
-        <p>Called out as the move develops, not after it's over.</p>
+        <p>Calls the pass as it happens — who, where, and how big the gap was, without you having to check a leaderboard.</p>
       </div>
-      <div class="card glass tilt">
-        <div class="icon-ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
-        <h3>Crash detection</h3>
-        <p>An immediate check-in the instant an impact happens.</p>
+      <div class="feature-card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 6 6 1-4.5 4.5 1 6.5-5.5-3-5.5 3 1-6.5L3 9l6-1z"/></svg></div>
+        <h3>Crash &amp; contact detection</h3>
+        <p>Flags contact the instant it happens, so you know if it's worth a look before the next braking zone.</p>
       </div>
-      <div class="card glass tilt">
-        <div class="icon-ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg></div>
+      <div class="feature-card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L2.5 18a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
         <h3>Damage callouts</h3>
-        <p>Translated into what it actually costs you on track.</p>
+        <p>Tells you what broke and whether it's safe to keep pushing — not just that something happened.</p>
       </div>
-      <div class="card glass tilt">
-        <div class="icon-ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg></div>
+      <div class="feature-card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12l6 6L20 6"/></svg></div>
         <h3>Race finish messages</h3>
-        <p>A proper sign-off when the checkered flag drops.</p>
+        <p>A proper radio sign-off when you take the flag — your finishing position and the shape of the race that got you there.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h.01M15 9h.01M9 15h6"/></svg></div>
+        <h3>Push-to-talk Q&amp;A</h3>
+        <p>Ask "what's my gap to P3" or "how much fuel have I got" from a Stream Deck button and hear the answer straight away.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></div>
+        <h3>Built for ACC &amp; LMU</h3>
+        <p>Native shared-memory support for Assetto Corsa Competizione and Le Mans Ultimate today, with more sims planned.</p>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="section" id="how">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <div class="kicker">How it works</div>
-      <h2>One pipeline, running every frame of your session.</h2>
+  <!-- RADIO DEMO -->
+  <section class="section reveal" id="demo">
+    <div class="section-head" style="margin-left:auto; margin-right:auto; text-align:center;">
+      <div class="section-tag" style="margin:0 auto 16px;">HEAR IT IN ACTION</div>
+      <div class="section-title">A lap, replayed over the radio.</div>
+      <p class="section-desc" style="margin-left:auto; margin-right:auto;">A sample exchange from a real test session — PitWatch calling the race unprompted, then answering a question mid-corner.</p>
     </div>
-    <div class="pipeline reveal">
-      <div class="line" aria-hidden="true"></div>
-      <div class="pl-step">
-        <div class="node glass">01</div>
-        <h3>Read shared memory</h3>
-        <p>PitWatch reads live telemetry directly from ACC or LMU's shared memory, the same data the sim itself uses.</p>
+    <div class="radio-panel">
+      <div class="radio-topbar">
+        <div class="rt-left"><span class="rec-dot"></span> LIVE RADIO — SPA-FRANCORCHAMPS</div>
+        <div class="rt-left">LAP 14 / 32</div>
       </div>
-      <div class="pl-step">
-        <div class="node glass">02</div>
-        <h3>Ask, wheel-bound</h3>
-        <p>Bind any free button on your wheel in PitWatch. Hold it and ask your question out loud.</p>
-        <span class="note"><span class="dot"></span>via Windows dictation for now, native voice input is coming soon</span>
-      </div>
-      <div class="pl-step">
-        <div class="node glass">03</div>
-        <h3>Gemini reasons about it</h3>
-        <p>Your question and the live race state are interpreted by the Gemini API, which decides what's worth saying and when.</p>
-      </div>
-      <div class="pl-step">
-        <div class="node glass">04</div>
-        <h3>Speak on your radio</h3>
-        <p>The response is spoken back over your comms, triggered hands-free from the same wheel button.</p>
-      </div>
+      <div class="radio-log" id="radioLog"></div>
     </div>
-    <div class="badges reveal">
-      <span class="badge">Assetto Corsa Competizione</span>
-      <span class="badge">Le Mans Ultimate</span>
-      <span class="badge">Wheel-button push-to-talk</span>
-      <span class="badge">Windows 10 / 11</span>
-    </div>
-  </div>
-</section>
+  </section>
 
-<section class="cta" id="launch">
-  <div class="wrap">
-    <div class="reveal">
-      <h2>PitWatch is on the formation lap.</h2>
-      <p>We're finishing the wheel-button push-to-talk flow before we send this live. Free at launch, install it, point it at ACC or LMU, and key up to ask your first question.</p>
-      <div class="clock-panel glass" style="margin:40px auto 0; max-width:520px; justify-content:center;">
-        <div>
-          <div class="clock-label">Lights out in</div>
-          <div class="clock" style="justify-content:center;">
-            <div class="unit"><div class="num" id="c2-d">00</div><div class="lbl">DAYS</div></div>
-            <div class="colon">:</div>
-            <div class="unit"><div class="num" id="c2-h">00</div><div class="lbl">HRS</div></div>
-            <div class="colon">:</div>
-            <div class="unit"><div class="num" id="c2-m">00</div><div class="lbl">MIN</div></div>
-            <div class="colon">:</div>
-            <div class="unit"><div class="num" id="c2-s">00</div><div class="lbl">SEC</div></div>
-          </div>
+  <!-- PROOF -->
+  <section class="section reveal">
+    <div class="proof">
+      <div>
+        <div class="proof-track">FIRST TEST · SPA-FRANCORCHAMPS</div>
+        <h3>It's already turned laps for real.</h3>
+        <p>Before any of this was a landing page, it was a driver alone in a sim with a Stream Deck and a hunch. The first full test session ran clean end to end — telemetry in, callouts out, no missed radio.</p>
+      </div>
+      <div class="proof-log">
+        <div class="ok">Shared-memory telemetry held for the full race distance</div>
+        <div class="ok">Overtakes and contact called without a prompt</div>
+        <div class="ok">Push-to-talk questions answered mid-session</div>
+        <div class="ok">Finish message delivered as the flag dropped</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COUNTDOWN / SIGNUP -->
+  <section class="section reveal">
+    <div class="console">
+      <div>
+        <div class="console-label">LIGHTS OUT IN</div>
+        <div class="clock">
+          <div class="seg"><div class="num" id="d">--</div><div class="label">DAYS</div></div>
+          <div class="colon">:</div>
+          <div class="seg"><div class="num" id="h">--</div><div class="label">HRS</div></div>
+          <div class="colon">:</div>
+          <div class="seg"><div class="num" id="m">--</div><div class="label">MIN</div></div>
+          <div class="colon">:</div>
+          <div class="seg"><div class="num" id="s">--</div><div class="label">SEC</div></div>
         </div>
       </div>
-      <div class="hero-actions" style="justify-content:center; margin-top:32px;">
-        <span class="magnetic" id="magnet2"><a class="btn-primary" href="mailto:balazs.kiss@pitwatchai.com?subject=Notify%20me%20when%20PitWatch%20launches">Get a nudge when we go live</a></span>
-      </div>
-      <div class="req">Windows 10/11 · ACC or LMU installed · any wheel button</div>
-    </div>
-  </div>
-</section>
-
-<footer id="support">
-  <div class="wrap">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <div class="logo"><span class="mark"></span>PitWatch</div>
-        <p>An AI race engineer for sim racers, built to watch telemetry so you can watch the racing line.</p>
-      </div>
-      <div class="support">
-        <h4>Support</h4>
-        <div class="contact-card">
-          <div class="role">CEO, Founder</div>
-          <div class="name">Balázs Kiss</div>
-          <a href="mailto:balazs.kiss@pitwatchai.com">balazs.kiss@pitwatchai.com</a>
+      <div class="signup">
+        <div class="signup-row">
+          <input type="email" id="emailInput" placeholder="you@paddock.com" aria-label="Email address">
+          <button class="btn-primary" id="signupBtn">Notify me</button>
         </div>
+        <div class="status-line" id="statusLine">No spam — one message, the day we go live.</div>
       </div>
     </div>
-    <div class="foot-bottom">
-      <span>© 2026 PitWatch. All rights reserved.</span>
-      <span>Not affiliated with Kunos Simulazioni or Studio 397.</span>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section reveal" id="faq">
+    <div class="section-head">
+      <div class="section-tag">FAQ</div>
+      <div class="section-title">Before you ask the radio.</div>
     </div>
+    <div class="faq-list">
+      <details>
+        <summary>What do I need to run it?<span></span></summary>
+        <div class="faq-answer">ACC or Le Mans Ultimate on PC. A Stream Deck makes push-to-talk feel like a real radio button, but a simple keybind works just as well.</div>
+      </details>
+      <details>
+        <summary>Does this replace my spotter overlay?</summary>
+        <div class="faq-answer">No — it replaces the need to look at one. PitWatch is built to be heard, not read, so your eyes stay on the track.</div>
+      </details>
+      <details>
+        <summary>Where does my telemetry go?</summary>
+        <div class="faq-answer">Telemetry is read locally from the sim's shared memory. Only the race context PitWatch needs to answer or call something is sent out for reasoning.</div>
+      </details>
+      <details>
+        <summary>Which sims are supported?</summary>
+        <div class="faq-answer">Assetto Corsa Competizione is fully supported today, with Le Mans Ultimate in active testing. More sims are planned after launch.</div>
+      </details>
+    </div>
+  </section>
+
+  <div class="final-cta reveal">
+    <h2>Your next session deserves an engineer.</h2>
+    <p>Be first to know when PitWatch goes live — mid-August, lights out.</p>
+    <button class="btn-primary" id="finalNotifyBtn">Get a nudge when we go live</button>
+  </div>
+
+</main>
+
+<footer>
+  <div>PitWatch — built by a driver who got tired of guessing the delta. © 2026</div>
+  <div class="foot-links">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#faq">FAQ</a>
   </div>
 </footer>
 
 <script>
-(function(){
-  var canvas = document.getElementById('hero-streaks');
-  if(!canvas) return;
-  var hero = canvas.parentElement;
-  var ctx = canvas.getContext('2d');
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var w, h, vx, vy, streaks;
-  var colors = ['255,36,56', '255,143,151', '255,255,255'];
-
-  function resize(){
-    w = canvas.width = hero.offsetWidth;
-    h = canvas.height = hero.offsetHeight;
-    vx = w * 0.86;
-    vy = h * 0.42;
-  }
-
-  function makeStreak(){
-    var angle = (Math.random() * 0.9 + 0.65) * Math.PI;
-    return {
-      angle: angle,
-      dist: Math.random() * 80,
-      speed: 3 + Math.random() * 7,
-      len: 60 + Math.random() * 160,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      alpha: 0.06 + Math.random() * 0.22
-    };
-  }
-
-  function init(){
-    resize();
-    streaks = [];
-    for(var i = 0; i < 90; i++){ streaks.push(makeStreak()); }
-  }
-
-  function draw(){
-    ctx.clearRect(0, 0, w, h);
-    var maxDist = Math.max(w, h) * 0.95;
-    for(var i = 0; i < streaks.length; i++){
-      var s = streaks[i];
-      var x1 = vx + Math.cos(s.angle) * s.dist;
-      var y1 = vy + Math.sin(s.angle) * s.dist;
-      var x2 = vx + Math.cos(s.angle) * (s.dist + s.len);
-      var y2 = vy + Math.sin(s.angle) * (s.dist + s.len);
-      var fade = 1 - Math.min(1, s.dist / maxDist);
-      ctx.strokeStyle = 'rgba(' + s.color + ',' + (s.alpha * fade) + ')';
-      ctx.lineWidth = 1.3;
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.stroke();
-      if(!reduce){
-        s.dist += s.speed;
-        if(s.dist > maxDist){
-          var fresh = makeStreak();
-          fresh.dist = 0;
-          streaks[i] = fresh;
-        }
-      }
-    }
-  }
-
-  function frame(){
-    draw();
-    if(!reduce){ requestAnimationFrame(frame); }
-  }
-
-  init();
-  window.addEventListener('resize', function(){ init(); if(reduce) draw(); });
-  if(reduce){ draw(); } else { requestAnimationFrame(frame); }
-})();
-
-(function(){
-  var glow = document.getElementById('cursor-glow');
-  if(!glow) return;
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduce){ glow.style.display = 'none'; return; }
-  window.addEventListener('mousemove', function(e){
-    glow.style.transform = 'translate(' + e.clientX + 'px,' + e.clientY + 'px) translate(-50%,-50%)';
-  });
-})();
-
-(function(){
-  var target = new Date('2026-08-15T18:00:00+02:00').getTime();
-  var pairs = [['c-d','c-h','c-m','c-s'], ['c2-d','c2-h','c2-m','c2-s']];
-  function pad(n){ return String(n).padStart(2,'0'); }
-  function tick(){
-    var now = Date.now();
-    var diff = Math.max(0, target - now);
-    var d = Math.floor(diff / 86400000);
-    var h = Math.floor((diff % 86400000) / 3600000);
-    var m = Math.floor((diff % 3600000) / 60000);
-    var s = Math.floor((diff % 60000) / 1000);
-    for(var i=0;i<pairs.length;i++){
-      var ids = pairs[i];
-      var elD = document.getElementById(ids[0]);
-      if(!elD) continue;
-      document.getElementById(ids[0]).textContent = pad(d);
-      document.getElementById(ids[1]).textContent = pad(h);
-      document.getElementById(ids[2]).textContent = pad(m);
-      document.getElementById(ids[3]).textContent = pad(s);
-    }
-  }
-  tick();
-  setInterval(tick, 1000);
-})();
-
-(function(){
-  var speedEl = document.getElementById('hud-speed');
-  var throttleBar = document.getElementById('hud-throttle');
-  var throttleVal = document.getElementById('hud-throttle-val');
-  var brakeBar = document.getElementById('hud-brake');
-  var brakeVal = document.getElementById('hud-brake-val');
-  var gapEl = document.getElementById('hud-gap');
-  if(!speedEl) return;
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduce) return;
-  var t = 0;
-  setInterval(function(){
-    t += 0.15;
-    var speed = Math.round(210 + Math.sin(t) * 45 + Math.random() * 6);
-    var throttle = Math.max(0, Math.min(100, Math.round(70 + Math.sin(t * 1.3) * 40)));
-    var brake = Math.max(0, 100 - throttle - Math.round(Math.random() * 20));
-    var brakeClamped = Math.max(0, Math.min(100, throttle > 60 ? 0 : brake));
-    var gap = (0.2 + Math.abs(Math.sin(t * 0.7)) * 0.9).toFixed(2);
-    speedEl.innerHTML = speed + ' <span class="unit">km/h</span>';
-    throttleBar.style.width = throttle + '%';
-    throttleVal.textContent = throttle + '%';
-    brakeBar.style.width = brakeClamped + '%';
-    brakeVal.textContent = brakeClamped + '%';
-    gapEl.textContent = '+' + gap + 's';
-  }, 700);
-})();
-
-(function(){
-  var feed = document.getElementById('radio-feed');
-  if(!feed) return;
-  var lines = [
-    ['00:12:04', 'Gap ahead 0.6, closing.'],
-    ['00:12:09', 'Send it into turn one.'],
-    ['00:12:11', 'You: "How are my tyres?"'],
-    ['00:12:12', 'Fronts at 89°C, rears at 84°C. Still in window.'],
-    ['00:14:47', 'Contact at Eau Rouge. Checking damage.'],
-    ['00:14:49', 'Front-left aero damage, minor. No pit needed yet.'],
-    ['00:19:03', 'You: "Fuel to the end?"'],
-    ['00:19:04', 'Plenty, 4.2 laps spare at this pace.'],
-    ['00:24:31', 'P3 into the final sector. Gap to P2 now 0.9.'],
-    ['00:31:58', 'Checkered flag. P3, best lap 2:18.4. Good drive.']
+  /* ---------- ticker content ---------- */
+  const tickerItems = [
+    ['LAP','14 / 32'], ['POS','P4'], ['GAP AHEAD','+1.10s'], ['TYRES','62%'],
+    ['FUEL','8.2L'], ['TRACK','SPA-FRANCORCHAMPS'], ['STATUS','GREEN FLAG'], ['ENGINE','OK']
   ];
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var i = 0;
-  function addLine(){
-    var line = lines[i % lines.length];
-    var time = line[0];
-    var text = line[1];
-    var row = document.createElement('div');
-    row.className = 'radio-line';
-    var isUser = text.indexOf('You:') === 0;
-    row.innerHTML = '<span class="tag">' + time + '</span><span class="txt' + (isUser ? ' muted' : '') + '">' + text + '</span>';
-    feed.appendChild(row);
-    while(feed.children.length > 7){
-      feed.removeChild(feed.firstChild);
+  const track = document.getElementById('tickerTrack');
+  function buildTicker(){
+    let html = '';
+    for(let r=0;r<2;r++){
+      tickerItems.forEach(([k,v])=>{ html += `<span><span class="tag">${k}</span> ${v}</span>`; });
     }
-    feed.scrollTop = feed.scrollHeight;
-    i++;
+    track.innerHTML = html;
   }
-  addLine();
-  if(!reduce){
-    setInterval(addLine, 2200);
-  } else {
-    for(var k=0;k<6;k++) addLine();
+  buildTicker();
+
+  /* ---------- countdown ---------- */
+  const target = new Date('2026-08-15T00:00:00');
+  function tick(){
+    const now = new Date();
+    let diff = Math.max(0, target - now);
+    const d = Math.floor(diff / 86400000); diff -= d*86400000;
+    const h = Math.floor(diff / 3600000); diff -= h*3600000;
+    const m = Math.floor(diff / 60000); diff -= m*60000;
+    const s = Math.floor(diff / 1000);
+    const pad = n => String(n).padStart(2,'0');
+    document.getElementById('d').textContent = pad(d);
+    document.getElementById('h').textContent = pad(h);
+    document.getElementById('m').textContent = pad(m);
+    document.getElementById('s').textContent = pad(s);
   }
-})();
+  tick(); setInterval(tick, 1000);
 
-(function(){
-  var items = document.querySelectorAll('.reveal');
-  if(!items.length) return;
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduce){
-    items.forEach(function(el){ el.classList.add('in'); });
-    return;
+  /* ---------- ambient telemetry jitter ---------- */
+  function jitter(el, base, range, decimals){
+    const val = base + (Math.random()*2-1)*range;
+    el.firstChild.textContent = decimals ? val.toFixed(decimals) : Math.round(val);
   }
-  var observer = new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(entry.isIntersecting){
-        entry.target.classList.add('in');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.15 });
-  items.forEach(function(el){ observer.observe(el); });
-})();
+  setInterval(()=>{
+    jitter(document.getElementById('speedVal'), 231, 6, 0);
+    jitter(document.getElementById('throttleVal'), 92, 6, 0);
+    jitter(document.getElementById('gapVal'), 1.10, 0.35, 2);
+  }, 1400);
 
-(function(){
-  var sections = ['hero','feed','features','how','launch','support'];
-  var dots = document.querySelectorAll('#sidenav a');
-  if(!dots.length) return;
-  var els = sections.map(function(id){ return document.getElementById(id); }).filter(Boolean);
-  var observer = new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(entry.isIntersecting){
-        var id = entry.target.id;
-        dots.forEach(function(d){
-          d.classList.toggle('active', d.getAttribute('data-target') === id);
-        });
-      }
-    });
-  }, { threshold: 0.4 });
-  els.forEach(function(el){ observer.observe(el); });
-})();
-
-(function(){
-  var cards = document.querySelectorAll('.tilt');
-  if(!cards.length) return;
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduce) return;
-  cards.forEach(function(card){
-    card.addEventListener('mousemove', function(e){
-      var rect = card.getBoundingClientRect();
-      var x = (e.clientX - rect.left) / rect.width - 0.5;
-      var y = (e.clientY - rect.top) / rect.height - 0.5;
-      card.style.transform = 'perspective(700px) rotateX(' + (y * -7) + 'deg) rotateY(' + (x * 7) + 'deg) translateY(-4px)';
-    });
-    card.addEventListener('mouseleave', function(){
-      card.style.transform = 'perspective(700px) rotateX(0) rotateY(0)';
-    });
-  });
-})();
-
-(function(){
-  var magnets = document.querySelectorAll('.magnetic');
-  if(!magnets.length) return;
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduce) return;
-  magnets.forEach(function(m){
-    m.addEventListener('mousemove', function(e){
-      var rect = m.getBoundingClientRect();
-      var x = (e.clientX - rect.left - rect.width / 2) * 0.25;
-      var y = (e.clientY - rect.top - rect.height / 2) * 0.35;
-      m.style.transform = 'translate(' + x + 'px,' + y + 'px)';
-    });
-    m.addEventListener('mouseleave', function(){
-      m.style.transform = 'translate(0,0)';
-    });
-  });
-})();
-
-(function(){
-  var svg = document.getElementById('trackline');
-  var path = document.getElementById('trackpath');
-  if(!svg || !path) return;
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  function buildPath(){
-    var height = document.documentElement.scrollHeight;
-    svg.setAttribute('height', height);
-    svg.setAttribute('viewBox', '0 0 26 ' + height);
-    var d = 'M13 0';
-    var step = 240;
-    var x = 13;
-    for(var y = step; y < height; y += step){
-      var nx = x === 13 ? 21 : 13;
-      d += ' C13 ' + (y - step / 2) + ' ' + nx + ' ' + (y - step / 2) + ' ' + nx + ' ' + y;
-      x = nx;
+  /* ---------- radio transcript demo ---------- */
+  const transcript = [
+    { who:'engineer', time:'14:02', text:"Contact at Turn 8 behind you — not your fault, no damage. Keep pushing.", wave:true },
+    { who:'driver', time:'14:03', text:"What's my gap to P3?" },
+    { who:'engineer', time:'14:03', text:"1.4 seconds and closing — they're losing time in sector two.", wave:true },
+    { who:'engineer', time:'14:06', text:"You're past for P4! Clean move round the outside of Pouhon.", wave:true },
+    { who:'driver', time:'14:07', text:"How's the fuel looking?" },
+    { who:'engineer', time:'14:07', text:"8.2 litres left — good for six more laps, no need to save yet.", wave:true }
+  ];
+  const radioLog = document.getElementById('radioLog');
+  let msgIndex = 0;
+  function renderNextMessage(){
+    if(msgIndex >= transcript.length){
+      setTimeout(()=>{ radioLog.innerHTML=''; msgIndex=0; renderNextMessage(); }, 2600);
+      return;
     }
-    path.setAttribute('d', d);
-    return path.getTotalLength();
+    const m = transcript[msgIndex];
+    const el = document.createElement('div');
+    el.className = 'msg ' + m.who;
+    el.innerHTML = `
+      <div class="avatar">${m.who === 'engineer' ? 'PW' : 'YOU'}</div>
+      <div class="body">
+        <div class="meta"><span class="who">${m.who === 'engineer' ? 'PITWATCH' : 'DRIVER'}</span><span class="time">${m.time}</span></div>
+        <div class="text">${m.text}</div>
+        ${m.wave ? '<div class="waveform">'+Array.from({length:16}).map((_,i)=>`<i style="animation-delay:${(i*0.06).toFixed(2)}s"></i>`).join('')+'</div>' : ''}
+      </div>`;
+    radioLog.appendChild(el);
+    requestAnimationFrame(()=> requestAnimationFrame(()=> el.classList.add('show')));
+    msgIndex++;
+    setTimeout(renderNextMessage, 2000);
   }
+  renderNextMessage();
 
-  var length = buildPath();
-  path.style.strokeDasharray = length;
-
-  function update(){
-    var scrollTop = window.scrollY || document.documentElement.scrollTop;
-    var max = document.documentElement.scrollHeight - window.innerHeight;
-    var fraction = max > 0 ? Math.min(1, scrollTop / max) : 0;
-    path.style.strokeDashoffset = length * (1 - fraction);
-  }
-
-  if(reduce){
-    path.style.strokeDashoffset = 0;
+  /* ---------- scroll reveal ---------- */
+  const reveals = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold:0.12 });
+    reveals.forEach(r=> io.observe(r));
   } else {
-    path.style.strokeDashoffset = length;
-    window.addEventListener('scroll', update, { passive: true });
-    update();
+    reveals.forEach(r=> r.classList.add('in'));
   }
 
-  window.addEventListener('resize', function(){
-    length = buildPath();
-    path.style.strokeDasharray = length;
-    update();
-  });
-})();
+  /* ---------- signup (in-memory only, no backend wired yet) ---------- */
+  const emailInput = document.getElementById('emailInput');
+  const signupBtn = document.getElementById('signupBtn');
+  const statusLine = document.getElementById('statusLine');
+  let subscribed = false;
+  function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+  function trySignup(){
+    if(subscribed) return;
+    const val = emailInput.value.trim();
+    if(!validEmail(val)){
+      statusLine.textContent = 'Enter a valid email to get the nudge.';
+      statusLine.className = 'status-line err';
+      return;
+    }
+    subscribed = true;
+    signupBtn.textContent = "You're in";
+    statusLine.textContent = "We'll ping " + val + ' the moment PitWatch goes live.';
+    statusLine.className = 'status-line ok';
+  }
+  signupBtn.addEventListener('click', trySignup);
+  emailInput.addEventListener('keydown', e => { if(e.key === 'Enter') trySignup(); });
+
+  /* hero + final buttons just scroll to the signup console */
+  function scrollToSignup(){
+    document.getElementById('emailInput').closest('.section').scrollIntoView({behavior:'smooth', block:'center'});
+    setTimeout(()=> emailInput.focus(), 500);
+  }
+  document.getElementById('heroNotifyBtn').addEventListener('click', scrollToSignup);
+  document.getElementById('finalNotifyBtn').addEventListener('click', scrollToSignup);
 </script>
 
 </body>
