@@ -6,6 +6,7 @@
 <title>PitWatch — An engineer on your radio, every single lap.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --void:#05060a;
@@ -689,24 +690,59 @@
     reveals.forEach(r=> r.classList.add('in'));
   }
 
-  /* ---------- signup (in-memory only, no backend wired yet) ---------- */
+     3. In Settings → API, copy your Project URL and anon public key below. */
+  const SUPABASE_URL = 'https://lohsxrtrmkeyduvxbxit.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvaHN4cnRybWtleWR1dnhieGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2ODE4NzIsImV4cCI6MjEwMTI1Nzg3Mn0.GLPJ5FJQgNF1f8uXn02aMgnhdspTrZ1LNZjqjxFvRnw';
+
+  const supabaseClient = (window.supabase && SUPABASE_URL.indexOf('YOUR_PROJECT_REF') === -1)
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
+
   const emailInput = document.getElementById('emailInput');
   const signupBtn = document.getElementById('signupBtn');
   const statusLine = document.getElementById('statusLine');
   let subscribed = false;
+  let submitting = false;
   function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
-  function trySignup(){
-    if(subscribed) return;
+
+  async function trySignup(){
+    if(subscribed || submitting) return;
     const val = emailInput.value.trim();
     if(!validEmail(val)){
       statusLine.textContent = 'Enter a valid email to get the nudge.';
       statusLine.className = 'status-line err';
       return;
     }
-    subscribed = true;
-    signupBtn.textContent = "You're in";
-    statusLine.textContent = "We'll ping " + val + ' the moment PitWatch goes live.';
-    statusLine.className = 'status-line ok';
+    if(!supabaseClient){
+      statusLine.textContent = 'Signup form is not connected yet — add your Supabase URL and key in the code.';
+      statusLine.className = 'status-line err';
+      return;
+    }
+
+    submitting = true;
+    const originalLabel = signupBtn.textContent;
+    signupBtn.textContent = 'Sending…';
+    signupBtn.disabled = true;
+
+    const { error } = await supabaseClient.from('subscribers').insert({ email: val });
+
+    if(!error){
+      subscribed = true;
+      signupBtn.textContent = "You're in";
+      statusLine.textContent = "We'll ping " + val + ' the moment PitWatch goes live.';
+      statusLine.className = 'status-line ok';
+    } else if(error.code === '23505'){
+      subscribed = true;
+      signupBtn.textContent = "You're in";
+      statusLine.textContent = "That email's already on the list — we'll ping " + val + ' when we go live.';
+      statusLine.className = 'status-line ok';
+    } else {
+      signupBtn.textContent = originalLabel;
+      signupBtn.disabled = false;
+      statusLine.textContent = 'Something went wrong — try again in a moment.';
+      statusLine.className = 'status-line err';
+    }
+    submitting = false;
   }
   signupBtn.addEventListener('click', trySignup);
   emailInput.addEventListener('keydown', e => { if(e.key === 'Enter') trySignup(); });
