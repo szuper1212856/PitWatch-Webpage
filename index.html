@@ -721,9 +721,25 @@
   const emailInput = document.getElementById('emailInput');
   const signupBtn = document.getElementById('signupBtn');
   const statusLine = document.getElementById('statusLine');
+  const LOCK_KEY = 'pitwatch_subscribed_email';
   let subscribed = false;
   let submitting = false;
   function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+  /* if this browser already signed up before, show that immediately */
+  (function checkExistingLock(){
+    let lockedEmail = null;
+    try{ lockedEmail = localStorage.getItem(LOCK_KEY); } catch(e){ /* private mode etc. */ }
+    if(lockedEmail){
+      subscribed = true;
+      signupBtn.textContent = "You're in";
+      signupBtn.disabled = true;
+      emailInput.value = lockedEmail;
+      emailInput.disabled = true;
+      statusLine.textContent = "This browser is already signed up as " + lockedEmail + '.';
+      statusLine.className = 'status-line ok';
+    }
+  })();
 
   async function trySignup(){
     if(subscribed || submitting) return;
@@ -749,11 +765,15 @@
     if(!error){
       subscribed = true;
       signupBtn.textContent = "You're in";
+      emailInput.disabled = true;
+      try{ localStorage.setItem(LOCK_KEY, val); } catch(e){ /* private mode etc. */ }
       statusLine.textContent = "We'll ping " + val + ' the moment PitWatch goes live.';
       statusLine.className = 'status-line ok';
     } else if(error.code === '23505'){
       subscribed = true;
       signupBtn.textContent = "You're in";
+      emailInput.disabled = true;
+      try{ localStorage.setItem(LOCK_KEY, val); } catch(e){ /* private mode etc. */ }
       statusLine.textContent = "That email's already on the list — we'll ping " + val + ' when we go live.';
       statusLine.className = 'status-line ok';
     } else {
