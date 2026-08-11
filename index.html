@@ -459,8 +459,8 @@
         <div><div class="m-label">Brake</div><div class="m-value" id="brakeVal">0<span class="unit">%</span></div></div>
       </div>
       <div class="metric">
-        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h10M11 8l4 4-4 4"/><path d="M15 6l4 6-4 6"/></svg></div>
-        <div><div class="m-label">Gap Ahead</div><div class="m-value" id="gapVal">+1.10<span class="unit">s</span></div></div>
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg></div>
+        <div><div class="m-label">Fuel</div><div class="m-value" id="fuelVal">8.2<span class="unit">L</span></div></div>
       </div>
     </div>
   </section>
@@ -478,7 +478,7 @@
       <div class="hud-mock">
         <div class="row"><span>SESSION</span><b>RACE · LAP 14/32</b></div>
         <div class="row"><span>POSITION</span><b>P4</b></div>
-        <div class="row"><span>GAP AHEAD</span><b>+1.10s</b></div>
+        <div class="row"><span>LAP TIME</span><b>1:46.32</b></div>
         <div class="row"><span>TYRE TEMP FL</span><b>91°C</b></div>
         <div class="row"><span>DAMAGE</span><span class="flash">CONTACT DETECTED — REAR</span></div>
         <div class="row"><span>FUEL</span><b>8.2L / ~6 laps</b></div>
@@ -495,7 +495,7 @@
     <div class="steps">
       <div class="step">
         <h3>Telemetry, straight from the sim</h3>
-        <p>PitWatch reads ACC and Le Mans Ultimate's shared memory directly — position, gaps, damage, fuel, tyre wear — with nothing installed on the sim side and no ports exposed.</p>
+        <p>PitWatch reads ACC and Le Mans Ultimate's shared memory directly — position, damage, fuel, tyre wear — with nothing installed on the sim side and no ports exposed.</p>
         <div class="arrow">→ feeds the engineer</div>
       </div>
       <div class="step">
@@ -521,7 +521,7 @@
       <div class="feature-card">
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19l6-14 4 9 3-5 3 10"/></svg></div>
         <h3>Overtake commentary</h3>
-        <p>Calls the pass as it happens — who, where, and how big the gap was, without you having to check a leaderboard.</p>
+        <p>Calls the pass as it happens — who, where, and what position you're in now, without you having to check a leaderboard.</p>
       </div>
       <div class="feature-card">
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 6 6 1-4.5 4.5 1 6.5-5.5-3-5.5 3 1-6.5L3 9l6-1z"/></svg></div>
@@ -541,7 +541,7 @@
       <div class="feature-card">
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h.01M15 9h.01M9 15h6"/></svg></div>
         <h3>Push-to-talk Q&amp;A</h3>
-        <p>Ask "what's my gap to P3" or "how much fuel have I got" by selecting PitWatch's input field and dictating your question, then hear the answer straight away.</p>
+        <p>Ask "what position am I in" or "how much fuel have I got" by selecting PitWatch's input field and dictating your question, then hear the answer straight away.</p>
       </div>
       <div class="feature-card">
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></div>
@@ -637,8 +637,8 @@
         <div class="faq-answer">No. PitWatch runs as its own background process reading shared memory — it never touches your inputs or rendering, so there's no effect on frame time or car control.</div>
       </details>
       <details>
-        <summary>Can I mute it or make it less chatty?</summary>
-        <div class="faq-answer">That's on the roadmap — a mute toggle and a setting for how much PitWatch talks, so you can tune it to your taste.</div>
+        <summary>Can I make it talk more or less?</summary>
+        <div class="faq-answer">Yes. You set how chatty PitWatch is on the setup page before you head out, and you can just tell it to talk more or less at any point mid-session.</div>
       </details>
       <details>
         <summary>Does it help with fuel and pit strategy?</summary>
@@ -646,11 +646,11 @@
       </details>
       <details>
         <summary>Does it know my sector times and pace, not just my position?</summary>
-        <div class="faq-answer">Yes. It watches your sector splits and gaps in real time — that's exactly what it uses to call overtakes and closing gaps before you notice them yourself.</div>
+        <div class="faq-answer">Yes. It watches your sector splits and pace in real time — that's what it uses to call your overtakes as they happen.</div>
       </details>
       <details>
         <summary>Can I ask about other drivers, not just my own car?</summary>
-        <div class="faq-answer">Yes. Ask about a rival's pace, a gap, or who's closing in, and PitWatch answers the same way it would about your own car.</div>
+        <div class="faq-answer">Not yet. PitWatch currently reasons about your own car — position, pace, fuel, damage. Gap-to-rival data and full opponent awareness aren't there yet.</div>
       </details>
       <details>
         <summary>Will there be a mobile companion app?</summary>
@@ -662,7 +662,7 @@
       </details>
       <details>
         <summary>What languages does it speak?</summary>
-        <div class="faq-answer">English at launch, with Hungarian planned as a next step.</div>
+        <div class="faq-answer">English. That's the only language PitWatch speaks right now.</div>
       </details>
     </div>
   </section>
@@ -710,7 +710,7 @@
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const tickerItems = [
-    ['LAP','14 / 32'], ['POS','P4'], ['GAP AHEAD','+1.10s'], ['TYRES','62%'],
+    ['LAP','14 / 32'], ['POS','P4'], ['BEST LAP','1:46.318'], ['TYRES','62%'],
     ['FUEL','8.2L'], ['TRACK','SPA-FRANCORCHAMPS'], ['STATUS','GREEN FLAG'], ['ENGINE','OK']
   ];
   const track = document.getElementById('tickerTrack');
@@ -730,13 +730,13 @@
   setInterval(()=>{
     jitter(document.getElementById('speedVal'), 231, 6, 0);
     jitter(document.getElementById('throttleVal'), 92, 6, 0);
-    jitter(document.getElementById('gapVal'), 1.10, 0.35, 2);
+    jitter(document.getElementById('fuelVal'), 8.2, 0.5, 1);
   }, 1400);
 
   const transcript = [
     { who:'engineer', time:'14:02', text:"Contact at Turn 8 behind you — not your fault, no damage. Keep pushing.", wave:true },
-    { who:'driver', time:'14:03', text:"What's my gap to P3?" },
-    { who:'engineer', time:'14:03', text:"1.4 seconds and closing — they're losing time in sector two.", wave:true },
+    { who:'driver', time:'14:03', text:"What position am I in?" },
+    { who:'engineer', time:'14:03', text:"You're running P5, and your pace through sector two looks strong.", wave:true },
     { who:'engineer', time:'14:06', text:"You're past for P4! Clean move round the outside of Pouhon.", wave:true },
     { who:'driver', time:'14:07', text:"How's the fuel looking?" },
     { who:'engineer', time:'14:07', text:"8.2 litres left — good for six more laps, no need to save yet.", wave:true }
