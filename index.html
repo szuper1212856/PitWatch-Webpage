@@ -33,11 +33,11 @@
     position:relative;
     line-height:1.5;
   }
+  body.no-scroll{ overflow:hidden; }
   ::selection{ background:var(--red); color:#fff; }
   a{ color:inherit; }
   .mono{ font-family:'JetBrains Mono',monospace; }
 
-  /* ---------- ambient background ---------- */
   .bg-glow{
     position:fixed; inset:0; z-index:0; pointer-events:none;
     background:
@@ -74,7 +74,6 @@
   }
   section{ position:relative; z-index:2; }
 
-  /* ---------- ticker ---------- */
   .ticker{
     position:relative; z-index:3;
     border-bottom:1px solid var(--line);
@@ -90,7 +89,6 @@
   .ticker-track span.tag{ color:var(--red); font-weight:600; }
   @keyframes tickerScroll{ from{ transform:translateX(0);} to{ transform:translateX(-50%);} }
 
-  /* ---------- header ---------- */
   header{
     position:relative; z-index:4;
     display:flex; align-items:center; justify-content:space-between;
@@ -115,12 +113,15 @@
     border:1px solid rgba(232,40,63,0.35); color:var(--red);
     font-family:'Orbitron',sans-serif; font-size:10.5px; letter-spacing:2px; font-weight:600;
     padding:9px 16px; border-radius:30px; background:rgba(232,40,63,0.06);
+    text-decoration:none;
   }
   .badge .dot{ width:6px; height:6px; border-radius:50%; background:var(--red); box-shadow:0 0 8px var(--red); }
+  .badge-live{ border-color:rgba(74,222,128,0.5); color:var(--green); background:rgba(74,222,128,0.08); cursor:pointer; transition:transform .15s ease; }
+  .badge-live .dot{ background:var(--green); box-shadow:0 0 8px var(--green); }
+  .badge-live:hover{ transform:translateY(-1px); }
 
   @media (max-width:900px){ nav.main-nav{ display:none; } }
 
-  /* ---------- hero ---------- */
   .hero{ padding:64px 56px 20px; }
   .eyebrow{
     display:inline-block; border:1px solid rgba(232,40,63,0.4); color:var(--red);
@@ -142,8 +143,11 @@
     padding:15px 28px; border-radius:8px; cursor:pointer;
     box-shadow:0 8px 30px rgba(232,40,63,0.35);
     transition:transform .15s ease, box-shadow .15s ease;
+    text-decoration:none; display:inline-block;
   }
   .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 12px 34px rgba(232,40,63,0.5); }
+  .btn-primary.is-live{ background:linear-gradient(135deg, var(--green), #16a34a); box-shadow:0 8px 30px rgba(74,222,128,0.35); }
+  .btn-primary.is-live:hover{ box-shadow:0 12px 34px rgba(74,222,128,0.5); }
   .btn-primary:focus-visible, a:focus-visible, button:focus-visible, summary:focus-visible{ outline:2px solid #fff; outline-offset:3px; }
   .btn-secondary{
     color:var(--white); text-decoration:none; font-size:15px; font-weight:500;
@@ -151,7 +155,6 @@
     display:inline-flex; align-items:center; gap:6px;
   }
 
-  /* ambient telemetry strip under hero */
   .telemetry{
     display:flex; gap:44px; flex-wrap:wrap;
     margin-top:52px; padding:22px 0 30px; border-top:1px solid var(--line);
@@ -168,7 +171,6 @@
   .metric .m-value{ font-family:'Orbitron',sans-serif; font-weight:700; font-size:22px; margin-top:2px; }
   .metric .m-value span.unit{ font-size:12px; color:var(--muted); font-family:'Inter',sans-serif; font-weight:500; margin-left:3px; }
 
-  /* ---------- section shell ---------- */
   .section{ padding:110px 56px; max-width:1240px; margin:0 auto; }
   .section-head{ max-width:640px; margin-bottom:56px; }
   .section-tag{
@@ -181,12 +183,14 @@
   }
   .section-desc{ margin-top:16px; color:var(--muted); font-size:15.5px; line-height:1.7; }
 
-  /* reveal on scroll */
   .reveal{ opacity:0; transform:translateY(22px); transition:opacity .7s ease, transform .7s ease; }
   .reveal.in{ opacity:1; transform:translateY(0); }
-  @media (prefers-reduced-motion:reduce){ .reveal{ opacity:1; transform:none; transition:none; } .streak{ animation:none; } .ticker-track{ animation:none; } }
+  @media (prefers-reduced-motion:reduce){
+    .reveal{ opacity:1; transform:none; transition:none; }
+    .streak{ animation:none; } .ticker-track{ animation:none; }
+    .spotlight, .scanline, .launch-number.tick, .shake{ animation:none !important; }
+  }
 
-  /* ---------- problem ---------- */
   .problem-grid{ display:grid; grid-template-columns:1.1fr 0.9fr; gap:64px; align-items:center; }
   .problem-quote{
     font-family:'Orbitron',sans-serif; font-size:clamp(20px,2.4vw,28px); font-weight:600; line-height:1.4;
@@ -207,7 +211,6 @@
   @keyframes blink{ 50%{ opacity:0.25; } }
   @media (max-width:900px){ .problem-grid{ grid-template-columns:1fr; } }
 
-  /* ---------- how it works ---------- */
   .steps{ display:grid; grid-template-columns:repeat(3,1fr); gap:28px; counter-reset:step; }
   .step{
     border:1px solid var(--line); border-radius:16px; padding:30px 26px;
@@ -224,7 +227,6 @@
   .step .arrow{ margin-top:18px; color:var(--red); font-size:13px; font-weight:600; }
   @media (max-width:900px){ .steps{ grid-template-columns:1fr; } }
 
-  /* ---------- features ---------- */
   .feature-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
   .feature-card{
     border:1px solid var(--line); border-radius:16px; padding:28px 24px;
@@ -242,7 +244,6 @@
   @media (max-width:900px){ .feature-grid{ grid-template-columns:1fr 1fr; } }
   @media (max-width:600px){ .feature-grid{ grid-template-columns:1fr; } }
 
-  /* ---------- radio demo ---------- */
   .radio-panel{
     border:1px solid var(--line); border-radius:18px; background:var(--panel-bg);
     padding:8px; max-width:760px; margin:0 auto;
@@ -253,9 +254,10 @@
   }
   .radio-topbar .rt-left{ display:flex; align-items:center; gap:10px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); }
   .rec-dot{ width:8px; height:8px; border-radius:50%; background:var(--red); box-shadow:0 0 8px var(--red); animation:blink 1.2s steps(1) infinite; }
-  .radio-log{ padding:22px 18px; display:flex; flex-direction:column; gap:18px; min-height:280px; }
-  .msg{ display:flex; gap:12px; opacity:0; transform:translateY(8px); transition:opacity .4s ease, transform .4s ease; }
+  .radio-log{ padding:22px 18px; display:flex; flex-direction:column; gap:18px; height:320px; overflow:hidden; }
+  .msg{ display:flex; gap:12px; flex:none; opacity:0; transform:translateY(8px); transition:opacity .4s ease, transform .4s ease; }
   .msg.show{ opacity:1; transform:translateY(0); }
+  .msg.fade-out{ opacity:0; transform:translateY(-10px); }
   .msg .avatar{
     width:30px; height:30px; border-radius:8px; flex:none; margin-top:2px;
     display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
@@ -273,7 +275,6 @@
   .waveform i{ width:2.5px; background:var(--red); opacity:0.6; border-radius:2px; animation:wave 1s ease-in-out infinite; }
   @keyframes wave{ 0%,100%{ height:4px; } 50%{ height:15px; } }
 
-  /* ---------- proof ---------- */
   .proof{
     border:1px solid var(--line); border-radius:18px; background:var(--panel);
     padding:40px 44px; display:grid; grid-template-columns:1.1fr 1fr; gap:40px; align-items:center;
@@ -285,12 +286,12 @@
   .proof-log .ok::before{ content:"✓ "; color:var(--green); }
   @media (max-width:900px){ .proof{ grid-template-columns:1fr; } }
 
-  /* ---------- countdown / signup ---------- */
   .console{
     border:1px solid var(--line); border-radius:18px; background:var(--panel);
     padding:36px 40px; display:flex; justify-content:space-between; gap:40px; flex-wrap:wrap; align-items:center;
   }
   .console-label{ font-family:'Orbitron',sans-serif; color:var(--red); font-size:12px; letter-spacing:3px; font-weight:600; margin-bottom:16px; }
+  .console-label.is-live{ color:var(--green); }
   .clock{ display:flex; gap:30px; }
   .clock .seg{ text-align:left; }
   .clock .num{ font-family:'Orbitron',sans-serif; font-weight:800; font-size:42px; line-height:1; }
@@ -309,8 +310,9 @@
   .status-line{ color:var(--muted-dim); font-size:12.5px; min-height:16px; }
   .status-line.ok{ color:var(--green); }
   .status-line.err{ color:var(--red-bright); }
+  .download-panel{ display:flex; flex-direction:column; gap:10px; align-items:flex-start; }
+  .download-panel .btn-primary{ padding:14px 26px; }
 
-  /* ---------- faq ---------- */
   .faq-list{ display:flex; flex-direction:column; gap:12px; max-width:820px; }
   details{
     border:1px solid var(--line); border-radius:12px; background:var(--panel); padding:6px 22px;
@@ -325,7 +327,6 @@
   details[open] summary::after{ content:"–"; }
   .faq-answer{ color:var(--muted); font-size:14.5px; line-height:1.7; padding-bottom:18px; max-width:640px; }
 
-  /* ---------- final cta ---------- */
   .final-cta{ text-align:center; padding:100px 56px 60px; }
   .final-cta h2{ font-family:'Orbitron',sans-serif; font-weight:800; font-size:clamp(26px,4vw,44px); max-width:700px; margin:0 auto 20px; }
   .final-cta p{ color:var(--muted); max-width:480px; margin:0 auto 32px; font-size:15.5px; }
@@ -338,6 +339,58 @@
   footer .foot-links{ display:flex; gap:24px; }
   footer a{ text-decoration:none; color:var(--muted-dim); }
   footer a:hover{ color:var(--white); }
+
+  .launch-overlay{
+    position:fixed; inset:0; z-index:80; display:none;
+    align-items:center; justify-content:center; flex-direction:column;
+    background:rgba(2,3,6,0.9); backdrop-filter:blur(8px);
+    overflow:hidden;
+  }
+  .launch-overlay.show{ display:flex; }
+  .spotlight{
+    position:absolute; inset:-25%; z-index:0;
+    background:radial-gradient(circle at 50% 50%, rgba(232,40,63,0.32), rgba(232,40,63,0.06) 38%, transparent 62%);
+    animation:spotlightPulse 1.6s ease-in-out infinite;
+    filter:blur(4px);
+  }
+  .launch-overlay.urgent .spotlight{
+    background:radial-gradient(circle at 50% 50%, rgba(255,60,60,0.55), rgba(255,0,0,0.14) 38%, transparent 62%);
+    animation-duration:.5s;
+  }
+  @keyframes spotlightPulse{ 0%,100%{ transform:scale(1); opacity:.7; } 50%{ transform:scale(1.12); opacity:1; } }
+  .scanline{
+    position:absolute; left:0; right:0; height:2px; z-index:1;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+    animation:scan 2.4s linear infinite;
+  }
+  @keyframes scan{ from{ top:-5%; } to{ top:105%; } }
+  .launch-content{ position:relative; z-index:2; text-align:center; }
+  .launch-label{ font-family:'Orbitron',sans-serif; letter-spacing:6px; font-size:13px; color:var(--red); margin-bottom:16px; }
+  .launch-sub{ font-family:'Orbitron',sans-serif; letter-spacing:2px; font-size:12px; color:var(--muted); margin-top:18px; }
+  .launch-number{
+    font-family:'Orbitron',sans-serif; font-weight:900; font-size:clamp(90px,18vw,220px);
+    line-height:1; color:#fff; text-shadow:0 0 60px rgba(232,40,63,0.6);
+  }
+  .launch-overlay.urgent .launch-number{ color:var(--red-bright); text-shadow:0 0 80px rgba(255,60,60,0.85); }
+  .launch-number.tick{ animation:numberPulse .5s ease; }
+  @keyframes numberPulse{ 0%{ transform:scale(1.18); } 100%{ transform:scale(1); } }
+  .shake{ animation:shakeIt .35s ease-in-out infinite; }
+  @keyframes shakeIt{ 0%,100%{ transform:translate(0,0); } 25%{ transform:translate(-3px,2px); } 75%{ transform:translate(3px,-2px); } }
+
+  .live-overlay{
+    position:fixed; inset:0; z-index:90; display:none;
+    align-items:center; justify-content:center; flex-direction:column;
+    background:radial-gradient(ellipse at center, rgba(18,4,8,0.94), rgba(2,2,4,0.98));
+  }
+  .live-overlay.show{ display:flex; }
+  #confettiCanvas{ position:absolute; inset:0; z-index:0; pointer-events:none; }
+  .live-content{ position:relative; z-index:2; text-align:center; padding:24px; max-width:560px; }
+  .live-badge{ font-family:'Orbitron',sans-serif; color:var(--green); letter-spacing:3px; font-size:13px; margin-bottom:20px; }
+  .live-title{ font-family:'Orbitron',sans-serif; font-weight:900; font-size:clamp(30px,6vw,58px); margin-bottom:14px; color:#fff; line-height:1.1; }
+  .live-title .hl{ color:var(--red); }
+  .live-sub{ color:var(--muted); font-size:15.5px; margin-bottom:34px; line-height:1.6; }
+  .btn-download{ font-size:16px; padding:18px 34px; }
+  .live-close{ display:block; margin:26px auto 0; background:none; border:none; color:var(--muted-dim); font-size:12.5px; cursor:pointer; text-decoration:underline; }
 
   @media (max-width:720px){
     header{ padding:22px; }
@@ -368,7 +421,7 @@
     <a href="#faq">FAQ</a>
   </nav>
   <div class="header-right">
-    <div class="badge"><span class="dot"></span>MID-AUGUST</div>
+    <div class="badge" id="mainBadge"><span class="dot"></span>AUG 14 · 18:30 CEST</div>
   </div>
 </header>
 
@@ -412,7 +465,6 @@
     </div>
   </section>
 
-  <!-- PROBLEM -->
   <section class="section reveal">
     <div class="problem-grid">
       <div>
@@ -434,7 +486,6 @@
     </div>
   </section>
 
-  <!-- HOW IT WORKS -->
   <section class="section reveal" id="how">
     <div class="section-head">
       <div class="section-tag">HOW IT WORKS</div>
@@ -460,7 +511,6 @@
     </div>
   </section>
 
-  <!-- FEATURES -->
   <section class="section reveal" id="features">
     <div class="section-head">
       <div class="section-tag">FEATURES</div>
@@ -501,7 +551,6 @@
     </div>
   </section>
 
-  <!-- RADIO DEMO -->
   <section class="section reveal" id="demo">
     <div class="section-head" style="margin-left:auto; margin-right:auto; text-align:center;">
       <div class="section-tag" style="margin:0 auto 16px;">HEAR IT IN ACTION</div>
@@ -517,7 +566,6 @@
     </div>
   </section>
 
-  <!-- PROOF -->
   <section class="section reveal">
     <div class="proof">
       <div>
@@ -534,11 +582,10 @@
     </div>
   </section>
 
-  <!-- COUNTDOWN / SIGNUP -->
   <section class="section reveal">
     <div class="console">
       <div>
-        <div class="console-label">LIGHTS OUT IN</div>
+        <div class="console-label" id="consoleLabel">LIGHTS OUT IN</div>
         <div class="clock">
           <div class="seg"><div class="num" id="d">--</div><div class="label">DAYS</div></div>
           <div class="colon">:</div>
@@ -549,7 +596,7 @@
           <div class="seg"><div class="num" id="s">--</div><div class="label">SEC</div></div>
         </div>
       </div>
-      <div class="signup">
+      <div class="signup" id="signupArea">
         <div class="signup-row">
           <input type="email" id="emailInput" placeholder="you@paddock.com" aria-label="Email address">
           <button class="btn-primary" id="signupBtn">Notify me</button>
@@ -559,15 +606,10 @@
     </div>
   </section>
 
-  <!-- FAQ -->
   <section class="section reveal" id="faq">
-    <div class="section-head">
-      <div class="section-tag">FAQ</div>
-      <div class="section-title">Before you ask the radio.</div>
-    </div>
     <div class="faq-list">
       <details>
-        <summary>What do I need to run it?<span></span></summary>
+        <summary>What do I need to run it?</summary>
         <div class="faq-answer">ACC or Le Mans Ultimate on PC. Right now, you click into PitWatch's input field and use Windows dictation to ask your question. We're patching that soon so PitWatch handles voice input natively, no Windows dictation required.</div>
       </details>
       <details>
@@ -582,12 +624,52 @@
         <summary>Which sims are supported?</summary>
         <div class="faq-answer">Assetto Corsa Competizione is fully supported today, with Le Mans Ultimate in active testing. More sims are planned after launch.</div>
       </details>
+      <details>
+        <summary>Does PitWatch cost anything?</summary>
+        <div class="faq-answer">No — PitWatch is free for now. If that ever changes down the line, you'll hear about it here first.</div>
+      </details>
+      <details>
+        <summary>Do I need an internet connection?</summary>
+        <div class="faq-answer">Yes. Telemetry is read locally, but the reasoning behind every callout runs through the Gemini API, so PitWatch needs a connection to actually think.</div>
+      </details>
+      <details>
+        <summary>Will it slow down my sim or add input lag?</summary>
+        <div class="faq-answer">No. PitWatch runs as its own background process reading shared memory — it never touches your inputs or rendering, so there's no effect on frame time or car control.</div>
+      </details>
+      <details>
+        <summary>Can I mute it or make it less chatty?</summary>
+        <div class="faq-answer">That's on the roadmap — a mute toggle and a setting for how much PitWatch talks, so you can tune it to your taste.</div>
+      </details>
+      <details>
+        <summary>Does it help with fuel and pit strategy?</summary>
+        <div class="faq-answer">Yes. PitWatch tracks fuel burn as you drive and can talk you through stint length and pit windows as the race unfolds.</div>
+      </details>
+      <details>
+        <summary>Does it know my sector times and pace, not just my position?</summary>
+        <div class="faq-answer">Yes. It watches your sector splits and gaps in real time — that's exactly what it uses to call overtakes and closing gaps before you notice them yourself.</div>
+      </details>
+      <details>
+        <summary>Can I ask about other drivers, not just my own car?</summary>
+        <div class="faq-answer">Yes. Ask about a rival's pace, a gap, or who's closing in, and PitWatch answers the same way it would about your own car.</div>
+      </details>
+      <details>
+        <summary>Will there be a mobile companion app?</summary>
+        <div class="faq-answer">Not for the initial release. Everything runs on the same PC as your sim, so there's nothing extra to install on a phone.</div>
+      </details>
+      <details>
+        <summary>What happens if my connection drops mid-session?</summary>
+        <div class="faq-answer">Telemetry keeps reading locally either way — you won't lose position or lap data. Spoken callouts just pause until the connection is back.</div>
+      </details>
+      <details>
+        <summary>What languages does it speak?</summary>
+        <div class="faq-answer">English at launch, with Hungarian planned as a next step.</div>
+      </details>
     </div>
   </section>
 
   <div class="final-cta reveal">
     <h2>Your next session deserves an engineer.</h2>
-    <p>Be first to know when PitWatch goes live — mid-August, lights out.</p>
+    <p id="finalCtaSub">Be first to know when PitWatch goes live — August 14th, 18:30 CEST, lights out.</p>
     <button class="btn-primary" id="finalNotifyBtn">Get a nudge when we go live</button>
   </div>
 
@@ -602,8 +684,31 @@
   </div>
 </footer>
 
+<div class="launch-overlay" id="launchOverlay" aria-hidden="true">
+  <div class="spotlight"></div>
+  <div class="scanline"></div>
+  <div class="launch-content">
+    <div class="launch-label">LIGHTS OUT IN</div>
+    <div class="launch-number mono" id="launchNumber" aria-live="assertive">100</div>
+    <div class="launch-sub">PITWATCH · AUGUST 14 · 18:30 CEST</div>
+  </div>
+</div>
+
+<div class="live-overlay" id="liveOverlay" aria-hidden="true">
+  <canvas id="confettiCanvas"></canvas>
+  <div class="live-content">
+    <div class="live-badge">● LIVE NOW</div>
+    <h2 class="live-title">PITWATCH IS <span class="hl">LIVE.</span></h2>
+    <p class="live-sub">Lights out. Your engineer is on the radio — go get it.</p>
+    <a class="btn-primary btn-download" id="overlayDownloadBtn" href="https://github.com/szuper1212856/PitWatch/archive/refs/heads/main.zip" target="_blank" rel="noopener">Download PitWatch</a>
+    <button class="live-close" id="liveCloseBtn">Continue to site →</button>
+  </div>
+</div>
+
 <script>
-  /* ---------- ticker content ---------- */
+  const DOWNLOAD_URL = 'https://github.com/szuper1212856/PitWatch/archive/refs/heads/main.zip';
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const tickerItems = [
     ['LAP','14 / 32'], ['POS','P4'], ['GAP AHEAD','+1.10s'], ['TYRES','62%'],
     ['FUEL','8.2L'], ['TRACK','SPA-FRANCORCHAMPS'], ['STATUS','GREEN FLAG'], ['ENGINE','OK']
@@ -618,24 +723,6 @@
   }
   buildTicker();
 
-  /* ---------- countdown ---------- */
-  const target = new Date('2026-08-15T00:00:00');
-  function tick(){
-    const now = new Date();
-    let diff = Math.max(0, target - now);
-    const d = Math.floor(diff / 86400000); diff -= d*86400000;
-    const h = Math.floor(diff / 3600000); diff -= h*3600000;
-    const m = Math.floor(diff / 60000); diff -= m*60000;
-    const s = Math.floor(diff / 1000);
-    const pad = n => String(n).padStart(2,'0');
-    document.getElementById('d').textContent = pad(d);
-    document.getElementById('h').textContent = pad(h);
-    document.getElementById('m').textContent = pad(m);
-    document.getElementById('s').textContent = pad(s);
-  }
-  tick(); setInterval(tick, 1000);
-
-  /* ---------- ambient telemetry jitter ---------- */
   function jitter(el, base, range, decimals){
     const val = base + (Math.random()*2-1)*range;
     el.firstChild.textContent = decimals ? val.toFixed(decimals) : Math.round(val);
@@ -646,7 +733,6 @@
     jitter(document.getElementById('gapVal'), 1.10, 0.35, 2);
   }, 1400);
 
-  /* ---------- radio transcript demo ---------- */
   const transcript = [
     { who:'engineer', time:'14:02', text:"Contact at Turn 8 behind you — not your fault, no damage. Keep pushing.", wave:true },
     { who:'driver', time:'14:03', text:"What's my gap to P3?" },
@@ -656,13 +742,11 @@
     { who:'engineer', time:'14:07', text:"8.2 litres left — good for six more laps, no need to save yet.", wave:true }
   ];
   const radioLog = document.getElementById('radioLog');
+  const radioPanel = document.querySelector('.radio-panel');
+  const MAX_VISIBLE_MSGS = 4;
   let msgIndex = 0;
-  function renderNextMessage(){
-    if(msgIndex >= transcript.length){
-      setTimeout(()=>{ radioLog.innerHTML=''; msgIndex=0; renderNextMessage(); }, 2600);
-      return;
-    }
-    const m = transcript[msgIndex];
+
+  function addMessage(m){
     const el = document.createElement('div');
     el.className = 'msg ' + m.who;
     el.innerHTML = `
@@ -674,12 +758,53 @@
       </div>`;
     radioLog.appendChild(el);
     requestAnimationFrame(()=> requestAnimationFrame(()=> el.classList.add('show')));
-    msgIndex++;
-    setTimeout(renderNextMessage, 2000);
-  }
-  renderNextMessage();
 
-  /* ---------- scroll reveal ---------- */
+    const existing = radioLog.querySelectorAll('.msg');
+    if(existing.length > MAX_VISIBLE_MSGS){
+      const oldest = existing[0];
+      oldest.classList.add('fade-out');
+      oldest.classList.remove('show');
+      setTimeout(()=> oldest.remove(), 400);
+    }
+  }
+
+  let sectionInView = false;
+  let demoRunning = false;
+  let demoTimer = null;
+
+  function renderNextMessage(){
+    if(!demoRunning) return;
+    const m = transcript[msgIndex % transcript.length];
+    addMessage(m);
+    msgIndex++;
+    const delay = (msgIndex % transcript.length === 0) ? 2600 : 2000;
+    demoTimer = setTimeout(renderNextMessage, delay);
+  }
+
+  function updateDemoActive(){
+    const active = sectionInView && !document.hidden;
+    if(active && !demoRunning){
+      demoRunning = true;
+      renderNextMessage();
+    } else if(!active && demoRunning){
+      demoRunning = false;
+      clearTimeout(demoTimer);
+    }
+  }
+
+  if(radioPanel && 'IntersectionObserver' in window){
+    const demoObserver = new IntersectionObserver((entries)=>{
+      sectionInView = entries[0].isIntersecting;
+      updateDemoActive();
+    }, { threshold:0.35 });
+    demoObserver.observe(radioPanel);
+  } else {
+    sectionInView = true;
+    updateDemoActive();
+  }
+
+  document.addEventListener('visibilitychange', updateDemoActive);
+
   const reveals = document.querySelectorAll('.reveal');
   if('IntersectionObserver' in window){
     const io = new IntersectionObserver((entries)=>{
@@ -690,27 +815,167 @@
     reveals.forEach(r=> r.classList.add('in'));
   }
 
-  /* ---------- signup: writes straight into a Supabase table ---------- */
-  /* 1. Create a free project at https://supabase.com
-     2. In the SQL editor, run:
+  const launchTarget = new Date('2026-08-14T18:30:00+02:00');
+  let launchState = 'countdown'; // 'countdown' -> 'final' -> 'live'
+  let lastShownSecond = null;
 
-        create table subscribers (
-          id uuid primary key default gen_random_uuid(),
-          email text not null unique,
-          created_at timestamptz not null default now()
-        );
+  const dEl = document.getElementById('d'), hEl = document.getElementById('h'),
+        mEl = document.getElementById('m'), sEl = document.getElementById('s');
+  const launchOverlay = document.getElementById('launchOverlay');
+  const launchNumber = document.getElementById('launchNumber');
+  const liveOverlay = document.getElementById('liveOverlay');
 
-        alter table subscribers enable row level security;
+  function pad(n){ return String(n).padStart(2,'0'); }
 
-        create policy "Allow public insert"
-          on subscribers for insert
-          to anon
-          with check (true);
+  function renderNormalCountdown(diff){
+    const d = Math.floor(diff / 86400000); diff -= d*86400000;
+    const h = Math.floor(diff / 3600000); diff -= h*3600000;
+    const m = Math.floor(diff / 60000); diff -= m*60000;
+    const s = Math.floor(diff / 1000);
+    dEl.textContent = pad(d); hEl.textContent = pad(h); mEl.textContent = pad(m); sEl.textContent = pad(s);
+  }
 
-        -- deliberately no SELECT policy, so the anon key (which lives in
-        -- this front-end code) can add rows but never read the list back.
+  function showFinalOverlay(){
+    launchOverlay.classList.add('show');
+    launchOverlay.setAttribute('aria-hidden','false');
+    document.body.classList.add('no-scroll');
+  }
+  function hideFinalOverlay(){
+    launchOverlay.classList.remove('show','urgent');
+    launchOverlay.setAttribute('aria-hidden','true');
+  }
 
-     3. In Settings → API, copy your Project URL and anon public key below. */
+  function renderFinalCountdown(diff){
+    showFinalOverlay();
+    const secondsLeft = Math.max(0, Math.ceil(diff/1000));
+    dEl.textContent='00'; hEl.textContent='00'; mEl.textContent='00'; sEl.textContent=pad(Math.min(59,secondsLeft));
+    if(secondsLeft !== lastShownSecond){
+      lastShownSecond = secondsLeft;
+      launchNumber.textContent = secondsLeft;
+      if(!prefersReducedMotion){
+        launchNumber.classList.remove('tick'); void launchNumber.offsetWidth; launchNumber.classList.add('tick');
+      }
+      if(secondsLeft <= 10){
+        launchOverlay.classList.add('urgent');
+        if(!prefersReducedMotion) launchOverlay.querySelector('.launch-content').classList.add('shake');
+      }
+    }
+  }
+
+  function makeBadgeLive(){
+    const badge = document.getElementById('mainBadge');
+    if(!badge || badge.classList.contains('badge-live')) return;
+    const a = document.createElement('a');
+    a.id = 'mainBadge'; a.className = 'badge badge-live';
+    a.href = DOWNLOAD_URL; a.target = '_blank'; a.rel = 'noopener';
+    a.innerHTML = '<span class="dot"></span>LIVE — DOWNLOAD';
+    badge.replaceWith(a);
+  }
+
+  function enterLiveState(){
+    hideFinalOverlay();
+    dEl.textContent='00'; hEl.textContent='00'; mEl.textContent='00'; sEl.textContent='00';
+
+    makeBadgeLive();
+
+    const consoleLabel = document.getElementById('consoleLabel');
+    consoleLabel.textContent = 'LIGHTS OUT';
+    consoleLabel.classList.add('is-live');
+
+    const signupArea = document.getElementById('signupArea');
+    signupArea.innerHTML = `
+      <div class="download-panel">
+        <a class="btn-primary is-live" href="${DOWNLOAD_URL}" target="_blank" rel="noopener">Download PitWatch</a>
+        <div class="status-line ok">It's live — grab the .zip and get on track.</div>
+      </div>`;
+
+    const heroBtn = document.getElementById('heroNotifyBtn');
+    heroBtn.textContent = 'Download PitWatch';
+    heroBtn.classList.add('is-live');
+    heroBtn.onclick = () => window.open(DOWNLOAD_URL, '_blank', 'noopener');
+
+    const finalBtn = document.getElementById('finalNotifyBtn');
+    finalBtn.textContent = 'Download PitWatch';
+    finalBtn.classList.add('is-live');
+    finalBtn.onclick = () => window.open(DOWNLOAD_URL, '_blank', 'noopener');
+    document.getElementById('finalCtaSub').textContent = "It's live — download PitWatch and get on track.";
+
+    showLiveOverlay();
+  }
+
+  let confettiFired = false;
+  function showLiveOverlay(){
+    liveOverlay.classList.add('show');
+    liveOverlay.setAttribute('aria-hidden','false');
+    document.body.classList.add('no-scroll');
+    if(!confettiFired){
+      confettiFired = true;
+      fireConfetti();
+    }
+  }
+  document.getElementById('liveCloseBtn').addEventListener('click', ()=>{
+    liveOverlay.classList.remove('show');
+    liveOverlay.setAttribute('aria-hidden','true');
+    document.body.classList.remove('no-scroll');
+  });
+
+  function fireConfetti(){
+    if(prefersReducedMotion) return;
+    const canvas = document.getElementById('confettiCanvas');
+    const ctx = canvas.getContext('2d');
+    function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+    const colors = ['#e8283f','#ff4757','#f4f5f8','#4ade80','#8891a3'];
+    const particles = Array.from({length:200}).map(()=>({
+      x: Math.random()*canvas.width,
+      y: -30 - Math.random()*canvas.height*0.6,
+      r: 4+Math.random()*5,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      vx: (Math.random()-0.5)*3.2,
+      vy: 2.4+Math.random()*4,
+      rot: Math.random()*360,
+      vr: (Math.random()-0.5)*12,
+      shape: Math.random()<0.5?'rect':'circle'
+    }));
+    let frame = 0;
+    const maxFrames = 280;
+    function draw(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      particles.forEach(p=>{
+        p.x += p.vx; p.y += p.vy; p.vy += 0.01; p.rot += p.vr;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot*Math.PI/180);
+        ctx.fillStyle = p.color;
+        if(p.shape==='rect') ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6);
+        else { ctx.beginPath(); ctx.arc(0,0,p.r/2,0,Math.PI*2); ctx.fill(); }
+        ctx.restore();
+      });
+      frame++;
+      if(frame < maxFrames){ requestAnimationFrame(draw); }
+      else { ctx.clearRect(0,0,canvas.width,canvas.height); }
+    }
+    requestAnimationFrame(draw);
+  }
+
+  function mainTick(){
+    const diff = launchTarget - new Date();
+    if(diff <= 0){
+      if(launchState !== 'live'){ launchState = 'live'; enterLiveState(); }
+    } else if(diff <= 100000){
+      launchState = 'final';
+      renderFinalCountdown(diff);
+    } else {
+      if(launchState === 'final') hideFinalOverlay();
+      launchState = 'countdown';
+      renderNormalCountdown(diff);
+    }
+  }
+  mainTick();
+  
+  setInterval(mainTick, 100);
+
   const SUPABASE_URL = 'https://lohsxrtrmkeyduvxbxit.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvaHN4cnRybWtleWR1dnhieGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2ODE4NzIsImV4cCI6MjEwMTI1Nzg3Mn0.GLPJ5FJQgNF1f8uXn02aMgnhdspTrZ1LNZjqjxFvRnw';
 
@@ -726,10 +991,10 @@
   let submitting = false;
   function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
 
-  /* if this browser already signed up before, show that immediately */
   (function checkExistingLock(){
+    if(!emailInput) return;
     let lockedEmail = null;
-    try{ lockedEmail = localStorage.getItem(LOCK_KEY); } catch(e){ /* private mode etc. */ }
+    try{ lockedEmail = localStorage.getItem(LOCK_KEY); } catch(e){  }
     if(lockedEmail){
       subscribed = true;
       signupBtn.textContent = "You're in";
@@ -766,14 +1031,14 @@
       subscribed = true;
       signupBtn.textContent = "You're in";
       emailInput.disabled = true;
-      try{ localStorage.setItem(LOCK_KEY, val); } catch(e){ /* private mode etc. */ }
+      try{ localStorage.setItem(LOCK_KEY, val); } catch(e){  }
       statusLine.textContent = "We'll ping " + val + ' the moment PitWatch goes live.';
       statusLine.className = 'status-line ok';
     } else if(error.code === '23505'){
       subscribed = true;
       signupBtn.textContent = "You're in";
       emailInput.disabled = true;
-      try{ localStorage.setItem(LOCK_KEY, val); } catch(e){ /* private mode etc. */ }
+      try{ localStorage.setItem(LOCK_KEY, val); } catch(e){  }
       statusLine.textContent = "That email's already on the list — we'll ping " + val + ' when we go live.';
       statusLine.className = 'status-line ok';
     } else {
@@ -784,16 +1049,17 @@
     }
     submitting = false;
   }
-  signupBtn.addEventListener('click', trySignup);
-  emailInput.addEventListener('keydown', e => { if(e.key === 'Enter') trySignup(); });
-
-  /* hero + final buttons just scroll to the signup console */
-  function scrollToSignup(){
-    document.getElementById('emailInput').closest('.section').scrollIntoView({behavior:'smooth', block:'center'});
-    setTimeout(()=> emailInput.focus(), 500);
+  if(signupBtn){
+    signupBtn.addEventListener('click', trySignup);
+    emailInput.addEventListener('keydown', e => { if(e.key === 'Enter') trySignup(); });
   }
-  document.getElementById('heroNotifyBtn').addEventListener('click', scrollToSignup);
-  document.getElementById('finalNotifyBtn').addEventListener('click', scrollToSignup);
+
+  function scrollToSignup(){
+    document.getElementById('signupArea').closest('.section').scrollIntoView({behavior:'smooth', block:'center'});
+    setTimeout(()=> { const ei = document.getElementById('emailInput'); if(ei) ei.focus(); }, 500);
+  }
+  document.getElementById('heroNotifyBtn').addEventListener('click', ()=>{ if(launchState !== 'live') scrollToSignup(); });
+  document.getElementById('finalNotifyBtn').addEventListener('click', ()=>{ if(launchState !== 'live') scrollToSignup(); });
 </script>
 
 </body>
