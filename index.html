@@ -89,6 +89,22 @@
   .ticker-track span.tag{ color:var(--red); font-weight:600; }
   @keyframes tickerScroll{ from{ transform:translateX(0);} to{ transform:translateX(-50%);} }
 
+  .delay-notice{
+    position:relative; z-index:3;
+    display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap;
+    border-bottom:1px solid rgba(232,40,63,0.25);
+    background:rgba(232,40,63,0.07);
+    padding:12px 24px; text-align:center;
+    font-size:13px; color:var(--muted);
+  }
+  .delay-dot{ width:6px; height:6px; border-radius:50%; background:var(--red); box-shadow:0 0 8px var(--red); flex:none; }
+  .delay-notice strong{ color:var(--white); }
+  .delay-link{
+    color:var(--red); font-weight:600; text-decoration:none; white-space:nowrap;
+    border-bottom:1px solid rgba(232,40,63,0.4); padding-bottom:1px;
+  }
+  .delay-link:hover{ color:var(--red-bright); }
+
   header{
     position:relative; z-index:4;
     display:flex; align-items:center; justify-content:space-between;
@@ -412,6 +428,12 @@
   <div class="ticker-track" id="tickerTrack"></div>
 </div>
 
+<div class="delay-notice" id="delayNotice">
+  <span class="delay-dot"></span>
+  <span>Heads up — PitWatch wasn't quite ready to ship on the 14th. We're actively working to get it out by <strong>August 16th</strong>.</span>
+  <a href="https://discord.gg/6rj6uKqXkZ" target="_blank" rel="noopener" class="delay-link">Join our Discord for updates →</a>
+</div>
+
 <header>
   <a class="logo" href="#top"><span class="markshape"></span>Pit<span class="accent">Watch</span></a>
   <nav class="main-nav">
@@ -419,9 +441,10 @@
     <a href="#features">Features</a>
     <a href="#demo">Demo</a>
     <a href="#faq">FAQ</a>
+    <a href="https://discord.gg/6rj6uKqXkZ" target="_blank" rel="noopener">Discord</a>
   </nav>
   <div class="header-right">
-    <div class="badge" id="mainBadge"><span class="dot"></span>AUG 14 · 18:30 CEST</div>
+    <div class="badge" id="mainBadge"><span class="dot"></span>AUG 16 · 18:30 CEST</div>
   </div>
 </header>
 
@@ -664,12 +687,16 @@
         <summary>What languages does it speak?</summary>
         <div class="faq-answer">English. That's the only language PitWatch speaks right now.</div>
       </details>
+      <details>
+        <summary>Where can I follow along or ask questions?</summary>
+        <div class="faq-answer">Our <a href="https://discord.gg/6rj6uKqXkZ" target="_blank" rel="noopener" class="delay-link">Discord</a> is the best place — that's where launch updates, testing notes, and questions get answered directly.</div>
+      </details>
     </div>
   </section>
 
   <div class="final-cta reveal">
     <h2>Your next session deserves an engineer.</h2>
-    <p id="finalCtaSub">Be first to know when PitWatch goes live — August 14th, 18:30 CEST, lights out.</p>
+    <p id="finalCtaSub">Be first to know when PitWatch goes live — August 16th, 18:30 CEST, lights out.</p>
     <button class="btn-primary" id="finalNotifyBtn">Get a nudge when we go live</button>
   </div>
 
@@ -681,6 +708,7 @@
     <a href="#how">How it works</a>
     <a href="#features">Features</a>
     <a href="#faq">FAQ</a>
+    <a href="https://discord.gg/6rj6uKqXkZ" target="_blank" rel="noopener">Discord</a>
   </div>
 </footer>
 
@@ -690,7 +718,7 @@
   <div class="launch-content">
     <div class="launch-label">LIGHTS OUT IN</div>
     <div class="launch-number mono" id="launchNumber" aria-live="assertive">100</div>
-    <div class="launch-sub">PITWATCH · AUGUST 14 · 18:30 CEST</div>
+    <div class="launch-sub">PITWATCH · AUGUST 16 · 18:30 CEST</div>
   </div>
 </div>
 
@@ -815,7 +843,7 @@
     reveals.forEach(r=> r.classList.add('in'));
   }
 
-  const launchTarget = new Date('2026-08-14T18:30:00+02:00');
+  const launchTarget = new Date('2026-08-16T18:30:00+02:00');
   let launchState = 'countdown'; // 'countdown' -> 'final' -> 'live'
   let lastShownSecond = null;
 
@@ -875,6 +903,9 @@
   function enterLiveState(){
     hideFinalOverlay();
     dEl.textContent='00'; hEl.textContent='00'; mEl.textContent='00'; sEl.textContent='00';
+
+    const delayNotice = document.getElementById('delayNotice');
+    if(delayNotice) delayNotice.style.display = 'none';
 
     makeBadgeLive();
 
