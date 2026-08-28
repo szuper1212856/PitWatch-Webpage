@@ -307,6 +307,7 @@
     padding:36px 40px; display:flex; justify-content:space-between; gap:40px; flex-wrap:wrap; align-items:center;
   }
   .console-label{ font-family:'Orbitron',sans-serif; color:var(--red); font-size:12px; letter-spacing:3px; font-weight:600; margin-bottom:16px; }
+  .console-tagline{ color:var(--muted); font-size:14px; max-width:340px; }
   .console-label.is-live{ color:var(--green); }
   .clock{ display:flex; gap:30px; }
   .clock .seg{ text-align:left; }
@@ -657,8 +658,9 @@
   <section class="section reveal">
     <div class="console">
       <div>
-        <div class="console-label" id="consoleLabel">LIGHTS OUT IN</div>
-        <div class="clock">
+        <div class="console-label is-live" id="consoleLabel">GRAB PITWATCH</div>
+        <div class="console-tagline">Download it, plug in, and start racing with an engineer on your radio.</div>
+        <div class="clock" style="display:none" aria-hidden="true">
           <div class="seg"><div class="num" id="d">--</div><div class="label">DAYS</div></div>
           <div class="colon">:</div>
           <div class="seg"><div class="num" id="h">--</div><div class="label">HRS</div></div>
@@ -746,7 +748,7 @@
       </details>
       <details>
         <summary>Why did Windows show the SmartScreen warning?</summary>
-        <div class="faq-answer">That's normal for a new indie app that hasn't built up download volume with Microsoft yet — it doesn't mean anything is wrong. PitWatch is safe and fully open source, so you don't have to take our word for it: the source code is right here on <a href="https://github.com/szuper1212856/PitWatch" target="_blank" rel="noopener" class="delay-link">GitHub</a> for anyone to check.</div>
+        <div class="faq-answer">PitWatch is safe. It's just new — Windows flags any app that hasn't built up download volume yet, regardless of what it does. And you don't have to take our word for it: PitWatch is fully open source, so anyone can check the code themselves on <a href="https://github.com/szuper1212856/PitWatch" target="_blank" rel="noopener" class="delay-link">GitHub</a>.</div>
       </details>
     </div>
   </section>
@@ -989,7 +991,7 @@
     makeBadgeLive();
 
     const consoleLabel = document.getElementById('consoleLabel');
-    consoleLabel.textContent = 'LIGHTS OUT';
+    consoleLabel.textContent = 'GRAB PITWATCH';
     consoleLabel.classList.add('is-live');
 
     const signupArea = document.getElementById('signupArea');
